@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.dsd.rdstore.dto.RolDTO;
+import com.dsd.rdstore.dto.rol.RolResponseDTO;
 import com.dsd.rdstore.model.Rol;
 import com.dsd.rdstore.repository.RolRepository;
 import com.dsd.rdstore.service.RolService;
@@ -43,7 +43,7 @@ public class RolServiceTest {
                 .thenReturn(List.of(admin, vendedor));
 
         // Act: ejecutar el método que queremos probar
-        List<RolDTO> resultado = rolService.listarRoles();
+        List<RolResponseDTO> resultado = rolService.listarRoles();
 
         // Assert: validar el resultado
         assertThat(resultado).hasSize(2);
