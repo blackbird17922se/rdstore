@@ -2,6 +2,7 @@ package com.dsd.rdstore.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dsd.rdstore.dto.usuario.UsuarioRequestDTO;
@@ -20,6 +21,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UsuarioResponseDTO> listarUsuarios() {
 
@@ -36,6 +38,7 @@ public class UsuarioService {
                 .toList();
     }
 
+
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO dto){
         
         Rol rol = rolRepository.findById(dto.idRol())
@@ -46,7 +49,9 @@ public class UsuarioService {
         usuario.setNombre(dto.nombre());
         usuario.setApellido(dto.apellido());
         usuario.setNombreUsuario(dto.nombreUsuario());
-        usuario.setContrasena(dto.contrasena());
+        usuario.setContrasena(
+            passwordEncoder.encode(dto.contrasena())
+        );
         usuario.setActivo(true);
         usuario.setRol(rol);
 

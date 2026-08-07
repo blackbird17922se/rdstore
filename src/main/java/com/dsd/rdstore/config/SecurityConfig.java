@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -17,9 +19,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v2/usuarios").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v2/usuarios").permitAll()
-                        .requestMatchers("/api/v2/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v2/roles").permitAll()
+                        .requestMatchers("/api/v2/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .build();
+    }
+
+    // Para encriptar y validar contraseñas
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 }
