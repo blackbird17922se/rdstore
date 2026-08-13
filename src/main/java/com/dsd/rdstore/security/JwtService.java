@@ -80,6 +80,7 @@ public class JwtService {
         return extraerClaims(token).getSubject();
     }
 
+    // del claim obtiene el rol, mirar el comentario de mas abajo
     public String extraerRol(String token) {
         return extraerClaims(token).get("rol", String.class);
     }
@@ -104,8 +105,10 @@ public class JwtService {
 
     public boolean validarToken(String token){
         try {
-            // ¿puedo leerlo correctamente usando mi clave?
+            // Intenta procesar el JWT. Si llegas hasta el final sin que ocurra ningún error, 
+            // lo considero válido
             extraerClaims(token);
+            // ¿Pude procesar correctamente este token?:
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
