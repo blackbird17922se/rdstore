@@ -47,6 +47,10 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
+        if (!usuario.getActivo()) {
+            throw new InvalidCredentialsException();
+        }
+
         String token = jwtService.generarToken(usuario);
 
         return new LoginResponseDTO(
