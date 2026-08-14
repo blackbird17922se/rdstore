@@ -35,4 +35,18 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.UNAUTHORIZED)
                                 .body(error);
         }
+
+        @ExceptionHandler(DuplicateResourceException.class)
+        public ResponseEntity<ErrorResponseDTO> manejarRecursoDuplicado(
+                        DuplicateResourceException exception) {
+
+                ErrorResponseDTO error = new ErrorResponseDTO(
+                                HttpStatus.CONFLICT.value(),
+                                "Recurso duplicado",
+                                exception.getMessage());
+
+                return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body(error);
+        }
 }
