@@ -16,4 +16,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Si Optional está vacío
     → lanza la excepción */
     Optional<Usuario> findByNombreUsuario(String nombreUsuario);
+
+    //boolean existsByNombreUsuarioIgnoreCaseAndIdNot(String nombreUsuario, Long id);
+    boolean existsByNombreUsuarioIgnoreCase(String nombreUsuario);
 }
