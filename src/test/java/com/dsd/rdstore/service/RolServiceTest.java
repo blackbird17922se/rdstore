@@ -1,4 +1,4 @@
-package com.dsd.rdstore;
+package com.dsd.rdstore.service;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.dsd.rdstore.dto.rol.RolResponseDTO;
 import com.dsd.rdstore.model.Rol;
 import com.dsd.rdstore.repository.RolRepository;
-import com.dsd.rdstore.service.RolService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

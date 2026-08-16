@@ -67,16 +67,25 @@ public class CategoriaService {
 
         String nombre = dto.nombre().trim();
 
-        // si uso existsByNombreIgnoreCase, se encontrara a si mismo y no funcionara
+
+        Categoria categoria = categoriaRepository.findById(id)
+            .orElseThrow(() ->
+                new ResourceNotFoundException("Categoría", id));
+
+
+        /*
+         * buscar nombre = "X"
+         * PERO
+         * ignorar id = Y
+         * Así permitimos que una categoría mantenga su propio nombre cuando sea
+         * editada.
+         * Si uso existsByNombreIgnoreCase, se encontrara a si mismo y no funcionara
+         */
         if(categoriaRepository.existsByNombreIgnoreCaseAndIdNot(nombre, id)){
             throw new DuplicateResourceException(
                 "Ya existe una categoría con el nombre: " + nombre
             );
         }
-
-        Categoria categoria = categoriaRepository.findById(id)
-            .orElseThrow(() ->
-                new ResourceNotFoundException("Categoria", id));
 
         categoria.setNombre(nombre);
 
@@ -90,7 +99,7 @@ public class CategoriaService {
     public void eliminarCategoria(Long id){
 
         if(!categoriaRepository.existsById(id)){
-            throw new ResourceNotFoundException("Categoria", id);
+            throw new ResourceNotFoundException("Categoría", id);
         }
 
         categoriaRepository.deleteById(id);
