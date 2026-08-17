@@ -63,6 +63,10 @@ public class SecurityConfig {
                         // Login público
                         .requestMatchers("/api/v2/auth/**").permitAll()
 
+                        // Solo autenticados
+                        .requestMatchers("/api/v2/perfil/**")
+                            .authenticated()
+
                         // Administración de usuarios
                         .requestMatchers("/api/v2/usuarios/**")
                         .hasRole("ADMIN") // Solo el rol admin podra acceder aqui
@@ -70,7 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v2/roles/**")
                         .hasRole("ADMIN")
                         // Spring agrega automáticamente el prefijo: ROLE_
-                        // en en JwtAuthFilter / new SimpleGrantedAuthority("ROLE_" + rol);
+                        // en JwtAuthFilter / new SimpleGrantedAuthority("ROLE_" + rol);
 
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
