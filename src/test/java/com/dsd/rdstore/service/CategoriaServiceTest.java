@@ -126,6 +126,13 @@ public class CategoriaServiceTest {
          * y espero que lance una DuplicateResourceException (el q yo cree).
          */
         DuplicateResourceException exception = assertThrows(
+                /*
+                * DuplicateResourceException.class significa “la clase/tipo de
+                * excepción que espero que sea lanzada”.
+                * Se puede leer así:
+                *       Ejecuta usuarioService.crearUsuario(...) y comprueba que 
+                *       lance una excepción de tipo DuplicateResourceException.
+                */
                 DuplicateResourceException.class,
                 // Este es el código que quiero ejecutar y comprobar.
                 () -> categoriaService.crearCategorias(dto));
@@ -195,7 +202,9 @@ public class CategoriaServiceTest {
         List<CategoriaResponseDTO> resultado = categoriaService.listarCategorias();
 
         // Assert
-        assertNotNull(resultado);
+        // “no encontró registros” no significa necesariamente null, por eso el not null
+        // porque por lo menos debe retornar la lista vacia []
+        assertNotNull(resultado); 
         assertEquals(0, resultado.size());
 
         verify(categoriaRepository).findAll();
