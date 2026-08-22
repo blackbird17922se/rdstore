@@ -1,5 +1,6 @@
 package com.dsd.rdstore.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,8 @@ public interface PresentacionRepository
         String nombre,
         Long id
     );
+
+    List<Presentacion> findByActivoTrueOrderByNombreAsc();
 
     Optional<Presentacion> findByNombreIgnoreCase(String nombre);
 }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.dsd.rdstore.dto.presentacion.PresentacionEstadoDTO;
 import com.dsd.rdstore.dto.presentacion.PresentacionRequestDTO;
 import com.dsd.rdstore.dto.presentacion.PresentacionResponseDTO;
 import com.dsd.rdstore.service.PresentacionService;
@@ -27,6 +28,16 @@ public class PresentacionController {
 
         return ResponseEntity.ok(
             presentacionService.listarPresentaciones()
+        );
+    }
+
+
+    @GetMapping("/activas")
+    public ResponseEntity<List<PresentacionResponseDTO>>
+            listarPresentacionesActivas() {
+
+        return ResponseEntity.ok(
+            presentacionService.listarPresentacionesActivas()
         );
     }
 
@@ -64,6 +75,18 @@ public class PresentacionController {
 
         return ResponseEntity.ok(
             presentacionService.actualizarPresentacion(id, dto)
+        );
+    }
+
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<PresentacionResponseDTO>
+            cambiarEstado(
+                    @PathVariable Long id,
+                    @Valid @RequestBody PresentacionEstadoDTO dto) {
+
+        return ResponseEntity.ok(
+            presentacionService.cambiarEstado(id, dto)
         );
     }
 }

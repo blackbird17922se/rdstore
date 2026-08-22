@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.dto.presentacion.PresentacionEstadoDTO;
 import com.dsd.rdstore.dto.presentacion.PresentacionRequestDTO;
 import com.dsd.rdstore.dto.presentacion.PresentacionResponseDTO;
 import com.dsd.rdstore.exception.DuplicateResourceException;
@@ -35,11 +36,12 @@ public class PresentacionService {
 
         Presentacion presentacion = new Presentacion();
         presentacion.setNombre(nombre);
+        presentacion.setActivo(true);
 
-        Presentacion presentacionGuardada =
+        Presentacion guardada =
             presentacionRepository.save(presentacion);
 
-        return mapResponse(presentacionGuardada);
+        return mapResponse(guardada);
     }
 
 
@@ -53,12 +55,21 @@ public class PresentacionService {
     }
 
 
+    public List<PresentacionResponseDTO> listarPresentacionesActivas() {
+
+        return presentacionRepository
+            .findByActivoTrueOrderByNombreAsc()
+            .stream()
+            .map(this::mapResponse)
+            .toList();
+    }
+
+
     public PresentacionResponseDTO obtenerPresentacionPorId(Long id) {
 
-        Presentacion presentacion =
-            obtenerPresentacion(id);
-
-        return mapResponse(presentacion);
+        return mapResponse(
+            obtenerPresentacion(id)
+        );
     }
 
 
@@ -81,10 +92,26 @@ public class PresentacionService {
 
         presentacion.setNombre(nombre);
 
-        Presentacion presentacionActualizada =
+        Presentacion actualizada =
             presentacionRepository.save(presentacion);
 
-        return mapResponse(presentacionActualizada);
+        return mapResponse(actualizada);
+    }
+
+
+    public PresentacionResponseDTO cambiarEstado(
+            Long id,
+            PresentacionEstadoDTO dto) {
+
+        Presentacion presentacion =
+            obtenerPresentacion(id);
+
+        presentacion.setActivo(dto.activo());
+
+        Presentacion actualizada =
+            presentacionRepository.save(presentacion);
+
+        return mapResponse(actualizada);
     }
 
 
@@ -106,7 +133,8 @@ public class PresentacionService {
 
         return new PresentacionResponseDTO(
             presentacion.getId(),
-            presentacion.getNombre()
+            presentacion.getNombre(),
+            presentacion.getActivo()
         );
     }
 }
