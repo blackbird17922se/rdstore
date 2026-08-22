@@ -79,6 +79,9 @@ public class SecurityConfig {
                         // Spring agrega automáticamente el prefijo: ROLE_
                         // en JwtAuthFilter / new SimpleGrantedAuthority("ROLE_" + rol);
 
+                        .requestMatchers("/api/v2/marcas/**")
+                            .authenticated()
+
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
