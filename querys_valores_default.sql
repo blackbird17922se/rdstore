@@ -1,5 +1,5 @@
-INSERT INTO presentacion (nombre)
-SELECT 'GENERAL'
+INSERT INTO presentacion (nombre, activo)
+SELECT 'GENERAL', TRUE
 WHERE NOT EXISTS (
     SELECT 1
     FROM presentacion
