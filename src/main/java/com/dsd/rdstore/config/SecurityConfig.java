@@ -84,6 +84,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v2/marcas/**")
                             .authenticated()
+                        .requestMatchers("/api/v2/productos/**")
+                            .authenticated()
 
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
