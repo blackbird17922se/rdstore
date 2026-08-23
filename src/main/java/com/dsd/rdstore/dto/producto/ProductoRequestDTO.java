@@ -49,9 +49,9 @@ public record ProductoRequestDTO(
         @NotNull(message = "La tarifa de IVA es obligatoria")
         Long idTarifaIva,
 
-        @NotNull(message = "El stock es obligatorio")
-        @PositiveOrZero(message = "El stock no puede ser negativo")
-        Long stock,
+        // @NotNull(message = "El stock es obligatorio")
+        // @PositiveOrZero(message = "El stock no puede ser negativo")
+        // Long stock,
 
         @NotNull(message = "El control de vencimiento es obligatorio")
         Boolean controlaVencimiento

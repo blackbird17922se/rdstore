@@ -165,7 +165,7 @@ public class ProductoService {
         producto.setPresentacion(presentacion);
         producto.setTarifaIva(tarifa);
 
-        producto.setStock(dto.stock());
+        // producto.setStock(dto.stock());
 
         producto.setControlaVencimiento(dto.controlaVencimiento());
     }
