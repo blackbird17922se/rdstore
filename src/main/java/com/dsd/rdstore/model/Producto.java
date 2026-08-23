@@ -46,9 +46,6 @@ public class Producto {
     private Presentacion presentacion;
 
     @Column(nullable = false)
-    private Long stock;
-
-    @Column(nullable = false)
     private Boolean activo;
 
     @ManyToOne(optional = false)

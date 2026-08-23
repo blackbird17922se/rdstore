@@ -16,6 +16,7 @@ import com.dsd.rdstore.model.Presentacion;
 import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.model.TarifaIva;
 import com.dsd.rdstore.repository.CategoriaRepository;
+import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.MarcaRepository;
 import com.dsd.rdstore.repository.PresentacionRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
@@ -32,6 +33,7 @@ public class ProductoService {
     private final MarcaRepository marcaRepository;
     private final CategoriaRepository categoriaRepository;
     private final TarifaIvaRepository tarifaIvaRepository;
+    private final ExistenciaProductoRepository existenciaProductoRepository;
 
     private static final String RECURSO = "Producto";
 
@@ -122,7 +124,8 @@ public class ProductoService {
                 producto.getTarifaIva().getNombre(),
                 producto.getTarifaIva().getPorcentaje(),
 
-                producto.getStock(),
+                existenciaProductoRepository
+                .obtenerStockTotalPorProducto(producto.getId()),
                 producto.getActivo(),
                 producto.getControlaVencimiento()
             );

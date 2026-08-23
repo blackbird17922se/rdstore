@@ -64,7 +64,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/api/v2/tarifas-iva/**")
                         .hasRole("ADMIN")
-
+                        .requestMatchers("/api/v2/entradas-inventario/**")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/v2/presentaciones/**")
                         .hasRole("ADMIN")
                         

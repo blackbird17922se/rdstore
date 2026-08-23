@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.dsd.rdstore.model.ExistenciaProducto;
 
@@ -28,4 +29,11 @@ public interface ExistenciaProductoRepository
                 LocalDate fechaFinal,
                 Long cantidad
         );
+
+    @Query("""
+        SELECT COALESCE(SUM(e.cantidad), 0)
+        FROM ExistenciaProducto e
+        WHERE e.producto.id = :idProducto
+    """)
+    Long obtenerStockTotalPorProducto(Long idProducto);
 }
