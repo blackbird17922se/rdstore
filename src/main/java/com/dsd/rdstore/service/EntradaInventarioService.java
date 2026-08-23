@@ -15,10 +15,13 @@ import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.DetalleEntradaInventario;
 import com.dsd.rdstore.model.EntradaInventario;
+import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.repository.DetalleEntradaInventarioRepository;
 import com.dsd.rdstore.repository.EntradaInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
+import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.TipoOrigenInventario;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,9 +46,10 @@ public class EntradaInventarioService {
     private final DetalleEntradaInventarioRepository detalleEntradaInventarioRepository;
     private final ProductoRepository productoRepository;
     private final ExistenciaProductoService existenciaProductoService;
+    private final MovimientoInventarioService movimientoInventarioService;
 
 
-    @Transactional // Si algo falla: ROLLBACK de todo
+    @Transactional
     public EntradaInventarioResponseDTO registrarEntrada(
             EntradaInventarioRequestDTO dto) {
 
@@ -93,17 +97,22 @@ public class EntradaInventarioService {
             DetalleEntradaInventario detalleGuardado =
                     detalleEntradaInventarioRepository.save(detalle);
 
-            existenciaProductoService.registrarExistencia(
-                    producto,
-                    detalleDto.cantidad(),
-                    numeroLote,
-                    detalleDto.fechaVencimiento()
-            );
+            ExistenciaProducto existencia =
+                existenciaProductoService.registrarExistencia(
+                        producto,
+                        detalleDto.cantidad(),
+                        numeroLote,
+                        detalleDto.fechaVencimiento()
+                );
 
-            // incrementarStock(
-            //         producto,
-            //         detalleDto.cantidad()
-            // );
+            movimientoInventarioService.registrarMovimiento(
+                    existencia,
+                    TipoMovimientoInventario.ENTRADA,
+                    detalleDto.cantidad(),
+                    TipoOrigenInventario.ENTRADA_INVENTARIO,
+                    entradaGuardada.getId(),
+                    "Entrada de inventario"
+            );
 
             detallesResponse.add(
                     mapDetalleResponse(detalleGuardado)
@@ -168,21 +177,6 @@ public class EntradaInventarioService {
 
         return producto;
     }
-
-
-    // private void incrementarStock(
-    //         Producto producto,
-    //         Long cantidad) {
-
-    //     Long stockActual =
-    //             producto.getStock() == null
-    //                     ? 0L
-    //                     : producto.getStock();
-
-    //     producto.setStock(
-    //             stockActual + cantidad
-    //     );
-    // }
 
 
     private String normalizarTexto(String valor) {

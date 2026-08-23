@@ -22,7 +22,7 @@ public record DetalleEntradaInventarioRequestDTO(
         )
         String numeroLote,
 
-        @FutureOrPresent( // valida que una fecha sea hoy o una fecha futura
+        @FutureOrPresent(
             message = "La fecha de vencimiento no puede ser anterior a la fecha actual"
         )
         LocalDate fechaVencimiento

@@ -32,7 +32,7 @@ public record EntradaInventarioRequestDTO(
         @NotEmpty(
             message = "La entrada debe contener al menos un producto"
         )
-        @Valid // Spring, no valides solamente la entrada; valida también cada objeto que viene dentro de detalles.”
+        @Valid
         List<DetalleEntradaInventarioRequestDTO> detalles
 
 ) {
