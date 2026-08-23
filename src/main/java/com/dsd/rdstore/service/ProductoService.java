@@ -123,7 +123,9 @@ public class ProductoService {
                 producto.getTarifaIva().getPorcentaje(),
 
                 producto.getStock(),
-                producto.getActivo());
+                producto.getActivo(),
+                producto.getControlaVencimiento()
+            );
     }
 
 
@@ -164,6 +166,8 @@ public class ProductoService {
         producto.setTarifaIva(tarifa);
 
         producto.setStock(dto.stock());
+
+        producto.setControlaVencimiento(dto.controlaVencimiento());
     }
 
 

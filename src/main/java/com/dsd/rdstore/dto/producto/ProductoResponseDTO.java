@@ -23,5 +23,6 @@ public record ProductoResponseDTO(
     BigDecimal porcentajeIva,
 
     Long stock,
-    Boolean activo
+    Boolean activo,
+    Boolean controlaVencimiento
 ) {}
