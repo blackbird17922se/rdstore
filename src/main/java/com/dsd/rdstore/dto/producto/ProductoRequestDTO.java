@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record ProductoRequestDTO(
@@ -48,10 +47,6 @@ public record ProductoRequestDTO(
 
         @NotNull(message = "La tarifa de IVA es obligatoria")
         Long idTarifaIva,
-
-        // @NotNull(message = "El stock es obligatorio")
-        // @PositiveOrZero(message = "El stock no puede ser negativo")
-        // Long stock,
 
         @NotNull(message = "El control de vencimiento es obligatorio")
         Boolean controlaVencimiento

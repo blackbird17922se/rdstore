@@ -104,7 +104,6 @@ public class TarifaIvaService {
             Long id,
             TarifaIvaRequestDTO dto) {
 
-        // Primero comprobamos que exista
         TarifaIva tarifa =
             obtenerTarifa(id);
 

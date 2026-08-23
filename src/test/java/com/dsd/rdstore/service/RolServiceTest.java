@@ -29,7 +29,6 @@ public class RolServiceTest {
     @Test
     void listarRoles_deberiaRetornarListaDeRolesDTO() {
 
-        // Arrange: preparar datos de prueba
         Rol admin = new Rol();
         admin.setId(2L);
         admin.setNombre("ADMIN");
@@ -41,10 +40,10 @@ public class RolServiceTest {
         when(rolRepository.findAll())
                 .thenReturn(List.of(admin, vendedor));
 
-        // Act: ejecutar el método que queremos probar
+        // Act
         List<RolResponseDTO> resultado = rolService.listarRoles();
 
-        // Assert: validar el resultado
+        // Assert
         assertThat(resultado).hasSize(2);
 
         assertThat(resultado.get(0).id()).isEqualTo(2L);

@@ -28,7 +28,6 @@ public class PerfilController {
 
     @GetMapping
     public ResponseEntity<UsuarioResponseDTO> obtenerPerfil(
-            // Spring Security puede darte el usuario autenticado con Authentication
             Authentication authentication) {
 
         String nombreUsuario = authentication.getName();
@@ -51,8 +50,6 @@ public class PerfilController {
     }
 
     @PatchMapping("/contrasena")
-    // ya que al actualizar la contraseña no retorna un dato importante
-    // a consultar por el usuario, retorno void
     public ResponseEntity<Void> cambiarContrasena(
             Authentication authentication, 
             @Valid @RequestBody UsuarioPasswordDTO dto) {

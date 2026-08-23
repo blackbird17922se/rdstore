@@ -17,7 +17,6 @@ public class RolService {
 
     public List<RolResponseDTO> listarRoles(){
 
-        // el map convierte cada Rol en un RolDTO.
         return rolRepository.findAll()
             .stream()
             .map(rol -> new RolResponseDTO(
@@ -26,9 +25,5 @@ public class RolService {
             ))
             .toList();
     }
-
-    /* Los roles del sistema son predefinidos y se utilizan para controlar 
-    permisos básicos de acceso. En esta versión, los usuarios administradores 
-    pueden asignar roles existentes, pero no crear nuevos roles personalizados. */
 
 }
