@@ -58,4 +58,7 @@ public class Producto {
     )
     private TarifaIva tarifaIva;
 
+    @Column(name = "controla_vencimiento", nullable = false)
+    private Boolean controlaVencimiento;
+
 }
