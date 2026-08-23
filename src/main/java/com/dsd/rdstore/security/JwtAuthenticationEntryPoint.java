@@ -19,14 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    /*
-     * implements AuthenticationEntryPoint
-     * es como decirle a Spring:
-     *      “Yo sé cómo quiero responder cuando alguien intenta entrar a un recurso
-     *      protegido sin estar autenticado.”
-    */
 
-    // Convierte ErrorResponseDTO a un JSON
     private final JsonMapper jsonMapper;
 
     @Override

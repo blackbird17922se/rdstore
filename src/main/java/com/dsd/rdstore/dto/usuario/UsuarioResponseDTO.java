@@ -9,6 +9,3 @@ public record UsuarioResponseDTO(
         Long idRol,
         String nombreRol
 ) {}
-
-/* DTO no debería transportar entidades completas.
-DTO debería transportar datos simples. */

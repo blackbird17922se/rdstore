@@ -49,7 +49,6 @@ public class MarcaServiceTest {
         Marca guardada = new Marca();
         guardada.setId(1L);
         guardada.setNombre(MARCA);
-        //guardada.setActivo(true);
 
         when(marcaRepository.save(any(Marca.class)))
             .thenReturn(guardada);

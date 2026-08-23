@@ -67,9 +67,6 @@ public class AuthServiceTest {
             NOMBRE_USUARIO_ADMIN,
             true, rol);
 
-        // en el servicio, passwordEncoder.matches( recibe
-        // dto.contrasena(), y usuario.getContrasena(), entonces 
-        // pasarle contrasenaActualEncriptada al matches hace q falle
         usuarioGuardado.setContrasena(contrasenaActualEncriptada);
 
         LoginRequestDTO dto = 

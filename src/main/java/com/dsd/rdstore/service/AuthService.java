@@ -24,20 +24,10 @@ public class AuthService {
 
     public LoginResponseDTO login(LoginRequestDTO dto){
 
-        // Consulta que el usuario exista
         Usuario usuario = usuarioRepository
             .findByNombreUsuario(dto.nombreUsuario())
-
-            /* .orElseThrow(InvalidCredentialsException::new); es equivalente a:
-            .orElseThrow(() -> new InvalidCredentialsException()); */
             .orElseThrow(InvalidCredentialsException::new);
 
-
-        /*
-        * Compara la contraseña recibida en texto plano
-        * con el hash BCrypt almacenado en la base de datos.
-        * Retorna true si corresponden.
-        */
         boolean coincide = passwordEncoder.matches(
             dto.contrasena(), 
             usuario.getContrasena()

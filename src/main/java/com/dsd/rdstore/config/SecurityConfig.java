@@ -30,12 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 /*
-                 * Spring Security permite configurar explícitamente la política de sesión; para
-                 * una API basada en tokens, STATELESS indica que el contexto de seguridad no
-                 * debe mantenerse mediante una sesión HTTP entre peticiones.
-                 * 
-                 * En palabras sencillas:
-                 *  cada petición debe traer su propia identificación.
+                 * cada petición debe traer su propia identificación.
                  * Esa identificación será nuestro JWT.
                  */
                 .sessionManagement(session -> 
@@ -44,21 +39,12 @@ public class SecurityConfig {
                     )
                 )
 
-                /*
-                 * Spring Security permite configurar ambos manejadores mediante
-                 * exceptionHandling: uno para autenticación faltante y otro para acceso
-                 * denegado.
-                 */
                 .exceptionHandling(exception -> exception
                     .authenticationEntryPoint(authenticationEntryPoint)
                     .accessDeniedHandler(accessDeniedHandler)
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        /*
-                        .requestMatchers(HttpMethod.GET, "/api/v2/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v2/usuarios")
-                        */
 
                         // Login público
                         .requestMatchers("/api/v2/auth/**").permitAll()
@@ -66,39 +52,28 @@ public class SecurityConfig {
                         // Solo autenticados
                         .requestMatchers("/api/v2/perfil/**")
                             .authenticated()
-
-                        // Administración de usuarios
-                        .requestMatchers("/api/v2/usuarios/**")
-                        .hasRole("ADMIN") // Solo el rol admin podra acceder aqui
-
-                        .requestMatchers("/api/v2/roles/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/api/v2/tarifas-iva/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/api/v2/presentaciones/**")
-                        .hasRole("ADMIN")
-                        // Spring agrega automáticamente el prefijo: ROLE_
-                        // en JwtAuthFilter / new SimpleGrantedAuthority("ROLE_" + rol);
-
                         .requestMatchers("/api/v2/marcas/**")
                             .authenticated()
                         .requestMatchers("/api/v2/productos/**")
                             .authenticated()
 
-                        // Todo lo demás requiere autenticación
+                        // Administración de usuarios
+                        .requestMatchers("/api/v2/usuarios/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/v2/roles/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/v2/tarifas-iva/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/api/v2/presentaciones/**")
+                        .hasRole("ADMIN")
+                        
                         .anyRequest().authenticated()
                 )
 
                 /*
-                 * Aquí finalmente conectamos nuestra clase JwtAuthFilter.
-                 * Le estamos diciendo a Spring Security:
                  *      Ejecuta mi JwtAuthFilter antes del filtro estándar
                  *      UsernamePasswordAuthenticationFilter.
-                 * y como mi clase JwtAuthFilter hereda de OncePerRequestFilter,
-                 * su metodo tipo override doFilterInternal el cual sobreescribimos,
-                 * sera la "puerta de entrada" al resto de procesos
                  */
                 .addFilterBefore(
                     jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
@@ -108,7 +83,7 @@ public class SecurityConfig {
                 .build();
     }
 
-    // Para encriptar y validar contraseñas
+    
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

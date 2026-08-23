@@ -15,8 +15,6 @@ import com.dsd.rdstore.security.JwtService;
 
 public class JwtServiceTest {
 
-    // Mockito no se utiliza porque sí. Se utiliza cuando 
-    // necesitamos simular dependencias o repositorios.
     private JwtService jwtService;
 
     private Usuario usuarioAdmin;
@@ -25,13 +23,11 @@ public class JwtServiceTest {
 
     private static final long EXPIRATION_TIME = 3600000L;
 
-    @BeforeEach // Antes de ejecutar cada @Test, prepara nuevamente estos objetos.
+    @BeforeEach 
     void setUp() {
 
         jwtService = new JwtService();
 
-        // ReflectionTestUtils significa: Busca el atributo privado
-        // secretKey dentro de jwtService y asígnale este valor.
         ReflectionTestUtils.setField(
                 jwtService,
                 "secretKey",
@@ -59,13 +55,12 @@ public class JwtServiceTest {
     void generarToken_deberiaGenerarTokenValido() {
 
         // Act
-        // obtenemos algo como eyJhbGciOiJIUzM4N...
         String token = jwtService.generarToken(usuarioAdmin);
 
         // Assets
         assertNotNull(token);
-        assertFalse(token.isBlank()); // Comprueba:No me entregaste simplemente ""
-        assertTrue(jwtService.validarToken(token)); // hace q la misma prueba lea el token
+        assertFalse(token.isBlank());
+        assertTrue(jwtService.validarToken(token));
 
     }
 

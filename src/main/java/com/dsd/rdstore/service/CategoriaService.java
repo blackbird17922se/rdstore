@@ -66,14 +66,7 @@ public class CategoriaService {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
 
-        /*
-         * buscar nombre = "X"
-         * PERO
-         * ignorar id = Y
-         * Así permitimos que una categoría mantenga su propio nombre cuando sea
-         * editada.
-         * Si uso existsByNombreIgnoreCase, se encontrara a si mismo y no funcionara
-         */
+
         if (categoriaRepository.existsByNombreIgnoreCaseAndIdNot(nombre, id)) {
             throw new DuplicateResourceException(
                     "Ya existe una categoría con el nombre: " + nombre);

@@ -6,11 +6,3 @@ public record LoginResponseDTO(
         String nombreUsuario,
         String rol
 ) {}
-/*
-    {
-    "token": "eyJhbGciOiJIUzI1NiJ9...",
-    "tipo": "Bearer",
-    "nombreUsuario": "yes",
-    "rol": "ADMIN"
-    }
- */

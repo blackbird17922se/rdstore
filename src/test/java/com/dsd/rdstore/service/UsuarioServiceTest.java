@@ -171,28 +171,18 @@ public class UsuarioServiceTest {
         verify(passwordEncoder)
             .encode(CONTRASENA);
 
-
-        /* Aquí estás diciendo: Quiero un capturador preparado para 
-        capturar objetos de tipo Usuario. */
         ArgumentCaptor<Usuario> captor =
             ArgumentCaptor.forClass(Usuario.class);
 
 
-        /* Esta línea hace dos cosas:
-        1. Verifica que save() fue llamado
-        2. Guarda el Usuario que recibió save() */
         verify(usuarioRepository)
             .save(captor.capture());
 
-        // Dame el objeto que capturaste.
         Usuario usuarioEnviadoAGuardar = captor.getValue();
 
         assertEquals(NOMBRE, usuarioEnviadoAGuardar.getNombre());
         assertEquals(APELLIDO, usuarioEnviadoAGuardar.getApellido());
         assertEquals(NOMBRE_USUARIO, usuarioEnviadoAGuardar.getNombreUsuario());
-
-        // IMPORTANTE, aqui evalua q el proceso de passwordEncoder si devolvio el
-        // HASH_BCRYPT_SIMULADO y que lo envio al usuario creado
         assertEquals(contrasenaEncriptada, usuarioEnviadoAGuardar.getContrasena());
         assertEquals(true, usuarioEnviadoAGuardar.getActivo());
         assertEquals(1L, usuarioEnviadoAGuardar.getRol().getId());
@@ -227,7 +217,6 @@ public class UsuarioServiceTest {
         verify(usuarioRepository)
             .existsByNombreUsuarioIgnoreCase(nombreUsuario);
 
-        // ni siquiera deio llegar a  buscar rol ni cifrar contraseña
         verify(rolRepository, never())
             .findById(anyLong());
 
@@ -357,12 +346,8 @@ public class UsuarioServiceTest {
 
         when(rolRepository.findById(rol.getId()))
             .thenReturn(Optional.of(rol));
-            
-        // thenAnswer: Cuando hagan save(), devuelve exactamente 
-        // el mismo objeto que recibira cuando usuarioRepository ejecute save
-        // cuando se ejecute usuarioService.actualizarUsuario(dto, id)
+
         when(usuarioRepository.save(any(Usuario.class)))
-            // invocacion.getArgument(0): Dame el primer argumento que recibió save().
             .thenAnswer(invocacion -> invocacion.getArgument(0));
         
 
@@ -375,8 +360,6 @@ public class UsuarioServiceTest {
         assertEquals("Pedro", respuesta.nombre());
         assertEquals("Fernandez", respuesta.apellido());
 
-        // Estos dos son importantes:
-        // actualizar no debe alterar username ni estado
         assertEquals(NOMBRE_USUARIO, respuesta.nombreUsuario());
         assertTrue(respuesta.activo());
 
