@@ -74,6 +74,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v2/roles/**")
                         .hasRole("ADMIN")
 
+                        .requestMatchers("/api/v2/tarifas-iva/**")
+                        .hasRole("ADMIN")
+
                         .requestMatchers("/api/v2/presentaciones/**")
                         .hasRole("ADMIN")
                         // Spring agrega automáticamente el prefijo: ROLE_

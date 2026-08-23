@@ -12,3 +12,10 @@ WHERE NOT EXISTS (
     FROM marca
     WHERE LOWER(nombre) = LOWER('GENERAL')
 );
+INSERT INTO tarifa_iva
+    (nombre, tipo, porcentaje, activo)
+VALUES
+    ('IVA GENERAL 19%', 'GRAVADO', 19.00, TRUE),
+    ('IVA REDUCIDO 5%', 'GRAVADO', 5.00, TRUE),
+    ('EXENTO', 'EXENTO', 0.00, TRUE),
+    ('EXCLUIDO', 'EXCLUIDO', 0.00, TRUE);

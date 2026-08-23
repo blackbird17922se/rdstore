@@ -49,4 +49,18 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.CONFLICT)
                                 .body(error);
         }
+
+        @ExceptionHandler(BusinessRuleException.class)
+        public ResponseEntity<ErrorResponseDTO> manejarReglaNegocio(
+                        BusinessRuleException exception) {
+
+                ErrorResponseDTO error = new ErrorResponseDTO(
+                                400,
+                                "Regla de negocio inválida",
+                                exception.getMessage());
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(error);
+        }
 }
