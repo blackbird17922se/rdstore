@@ -68,6 +68,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/api/v2/presentaciones/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/api/v2/movimientos-inventario/**")
+                        .hasRole("ADMIN")
                         
                         .anyRequest().authenticated()
                 )
