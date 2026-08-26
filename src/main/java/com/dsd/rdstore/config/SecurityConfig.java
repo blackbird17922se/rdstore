@@ -8,10 +8,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.dsd.rdstore.security.JwtAccessDeniedHandler;
 import com.dsd.rdstore.security.JwtAuthFilter;
 import com.dsd.rdstore.security.JwtAuthenticationEntryPoint;
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
+                .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
 
                 /*
@@ -90,5 +97,43 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+            List.of("http://localhost:4200")
+        );
+
+        configuration.setAllowedMethods(
+            List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            )
+        );
+
+        configuration.setAllowedHeaders(
+            List.of(
+                "Authorization",
+                "Content-Type"
+            )
+        );
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+            "/**",
+            configuration
+        );
+
+        return source;
     }
 }
