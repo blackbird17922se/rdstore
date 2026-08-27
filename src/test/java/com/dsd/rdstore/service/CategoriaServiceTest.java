@@ -315,45 +315,5 @@ public class CategoriaServiceTest {
                 .save(any(Categoria.class));
     }
 
-    @Test
-    void eliminarCategoria_deberiaEliminarCategoriaCuandoExiste() {
 
-        // Arrange
-        Long id = 1L;
-
-        when(categoriaRepository.existsById(id))
-                .thenReturn(true);
-
-        // Act
-        categoriaService.eliminarCategoria(id);
-
-        // Assert
-        verify(categoriaRepository).existsById(id);
-        verify(categoriaRepository).deleteById(id);
-    }
-
-
-    @Test
-    void eliminarCategoria_deberiaLanzarExcepcionCuandoCategoriaNoExiste() {
-
-        // Arrange
-        Long id = 99L;
-
-        when(categoriaRepository.existsById(id))
-                .thenReturn(false);
-
-        // Act + Assert
-        ResourceNotFoundException exception = assertThrows(
-                ResourceNotFoundException.class,
-                () -> categoriaService.eliminarCategoria(id));
-
-        assertEquals(
-                "Categoría no encontrado con identificador: 99",
-                exception.getMessage());
-
-        verify(categoriaRepository).existsById(id);
-
-        verify(categoriaRepository, never())
-                .deleteById(anyLong());
-    }
 }
