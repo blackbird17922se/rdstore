@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "tipo_producto")
+@Table(name = "categoria")
 @Data
 public class Categoria {
 
@@ -19,5 +19,8 @@ public class Categoria {
 
     @Column(nullable = false, unique = true)
     private String nombre;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
     
 }

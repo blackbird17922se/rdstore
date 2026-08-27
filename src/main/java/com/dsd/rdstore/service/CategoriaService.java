@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.dsd.rdstore.dto.categoria.CategoriaRequestDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaResponseDTO;
-import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.DuplicateResourceException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.Categoria;
 import com.dsd.rdstore.repository.CategoriaRepository;
-import com.dsd.rdstore.repository.ProductoRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,26 +18,27 @@ import lombok.RequiredArgsConstructor;
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
-    private final ProductoRepository productoRepository;
+
+    private final String RECURSO = "Categoría";
+
 
     public CategoriaResponseDTO crearCategorias(CategoriaRequestDTO dto) {
 
         String nombre = dto.nombre().trim();
 
         if (categoriaRepository.existsByNombreIgnoreCase(nombre)) {
-            throw new DuplicateResourceException(
-                    "Ya existe una categoría con el nombre: " + nombre);
+            throw new DuplicateResourceException( RECURSO ,nombre);
         }
 
         Categoria categoria = new Categoria();
         categoria.setNombre(nombre);
+        categoria.setActivo(true);
 
         Categoria categoriaCreada = categoriaRepository.save(categoria);
 
-        return new CategoriaResponseDTO(
-                categoriaCreada.getId(),
-                categoriaCreada.getNombre());
+        return mapearResponse(categoriaCreada);
     }
+
 
     public List<CategoriaResponseDTO> listarCategorias() {
 
@@ -53,7 +52,7 @@ public class CategoriaService {
     public CategoriaResponseDTO obtenerCategoriaPorId(Long id) {
 
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
+                .orElseThrow(() -> new ResourceNotFoundException(RECURSO, id));
 
         return mapearResponse(categoria);
 
@@ -64,12 +63,11 @@ public class CategoriaService {
         String nombre = dto.nombre().trim();
 
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
+                .orElseThrow(() -> new ResourceNotFoundException(RECURSO, id));
 
 
         if (categoriaRepository.existsByNombreIgnoreCaseAndIdNot(nombre, id)) {
-            throw new DuplicateResourceException(
-                    "Ya existe una categoría con el nombre: " + nombre);
+            throw new DuplicateResourceException(RECURSO, nombre);
         }
 
         categoria.setNombre(nombre);
@@ -80,38 +78,48 @@ public class CategoriaService {
     }
 
 
-    public void eliminarCategoria(Long id) {
+    public CategoriaResponseDTO cambiarEstado(
+            Long id,
+            Boolean activo) {
 
-        Categoria categoria = obtenerCategoriaPorIdF(id);
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(RECURSO,id)
+                );
 
-        validarCategoriaSinProductos(id);
+        categoria.setActivo(activo);
 
-        categoriaRepository.delete(categoria);
+        Categoria guardada =
+                categoriaRepository.save(categoria);
+
+        return mapearResponse(guardada);
     }
 
-    private Categoria obtenerCategoriaPorIdF(Long id) {
+
+    // private void validarCategoriaSinProductos(Long id) {
+
+    //     if (productoRepository.existsByCategoriaId(id)) {
+    //         throw new BusinessRuleException(
+    //                 "No se puede eliminar la categoría porque tiene productos asociados"
+    //         );
+    //     }
+    // }
+
+    public List<CategoriaResponseDTO> listarActivas() {
 
         return categoriaRepository
-                .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Categoría",
-                        id));
+                .findByActivoTrueOrderByNombreAsc()
+                .stream()
+                .map(this::mapearResponse)
+                .toList();
     }
 
     private CategoriaResponseDTO mapearResponse(Categoria categoria) {
 
         return new CategoriaResponseDTO(
-                categoria.getId(),
-                categoria.getNombre());
-    }
-
-    private void validarCategoriaSinProductos(Long id) {
-
-        if (productoRepository.existsByCategoriaId(id)) {
-            throw new BusinessRuleException(
-                    "No se puede eliminar la categoría porque tiene productos asociados"
-            );
-        }
+            categoria.getId(),
+            categoria.getNombre(),
+            categoria.getActivo());
     }
 
 }
