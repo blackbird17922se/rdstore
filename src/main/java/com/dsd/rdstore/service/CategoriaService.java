@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.dto.categoria.CategoriaEstadoDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaRequestDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaResponseDTO;
 import com.dsd.rdstore.exception.DuplicateResourceException;
@@ -80,14 +81,14 @@ public class CategoriaService {
 
     public CategoriaResponseDTO cambiarEstado(
             Long id,
-            Boolean activo) {
+            CategoriaEstadoDTO dto) {
 
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(RECURSO,id)
                 );
 
-        categoria.setActivo(activo);
+        categoria.setActivo(dto.activo());
 
         Categoria guardada =
                 categoriaRepository.save(categoria);
