@@ -55,6 +55,8 @@ public class SecurityConfig {
 
                         // Login público
                         .requestMatchers("/api/v2/auth/**").permitAll()
+                        // ante errores mostrar el error y no mandarme al login
+                        .requestMatchers("/error").permitAll()
 
                         // Solo autenticados
                         .requestMatchers("/api/v2/perfil/**")
@@ -78,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v2/movimientos-inventario/**")
                         .hasRole("ADMIN")
                         .requestMatchers("/api/v2/categorias/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/v2/clientes/**")
                         .hasRole("ADMIN")
                         
                         .anyRequest().authenticated()

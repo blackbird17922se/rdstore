@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 public record ClienteRequestDTO(
 
-    @Size(max = 20)
     EnumTipoDocumento tipoDocumento,
 
     @Size(max = 30)
