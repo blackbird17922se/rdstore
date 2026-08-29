@@ -32,7 +32,10 @@ public class ClienteService {
             throw new DuplicateResourceException(RECURSO, nombre);
         }
 
-        Cliente cliente = mapearRequest(dto);
+        Cliente cliente = new Cliente();
+
+        mapearRequest(dto, cliente);
+
         cliente.setNombresApellidos(nombre);
         cliente.setFechaRegistro(LocalDate.now());
         cliente.setActivo(true);
@@ -69,11 +72,14 @@ public class ClienteService {
 
         String nombre = dto.nombresApellidos().trim();
 
-        if (clienteRepository.existsByNombresApellidosIgnoreCaseAndIdNot(nombre, id)) {
+        if (clienteRepository
+                .existsByNombresApellidosIgnoreCaseAndIdNot(nombre, id)) {
+
             throw new DuplicateResourceException(RECURSO, nombre);
         }
 
-        cliente = mapearRequest(dto);
+        mapearRequest(dto, cliente);
+
         cliente.setNombresApellidos(nombre);
 
         Cliente guardado = clienteRepository.save(cliente);
@@ -126,8 +132,10 @@ public class ClienteService {
                 cliente.getActivo());
     }
 
-    private Cliente mapearRequest(ClienteRequestDTO dto) {
-        Cliente cliente = new Cliente();
+
+    private void mapearRequest(
+            ClienteRequestDTO dto,
+            Cliente cliente) {
 
         cliente.setTipoDocumento(dto.tipoDocumento());
         cliente.setNumeroDocumento(dto.numeroDocumento());
@@ -135,7 +143,6 @@ public class ClienteService {
         cliente.setCorreo(dto.correo());
         cliente.setDireccion(dto.direccion());
         cliente.setObservacion(dto.observacion());
-        return cliente;
     }
 
 }

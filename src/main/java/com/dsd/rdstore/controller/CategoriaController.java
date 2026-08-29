@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dsd.rdstore.dto.categoria.CategoriaEstadoDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaRequestDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaResponseDTO;
 import com.dsd.rdstore.service.CategoriaService;
@@ -68,7 +69,7 @@ public class CategoriaController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<CategoriaResponseDTO> cambiarEstado(
             @PathVariable Long id,
-            @RequestBody Boolean activo) {
+            @RequestBody CategoriaEstadoDTO activo) {
 
         return ResponseEntity.ok(
                 categoriaService.cambiarEstado(id, activo)
