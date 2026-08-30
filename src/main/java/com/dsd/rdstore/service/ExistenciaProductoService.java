@@ -24,6 +24,17 @@ public class ExistenciaProductoService {
     private final ProductoRepository productoRepository;
 
 
+    
+    public List<ExistenciaProductoResponseDTO> listarExistencias() {
+
+        return existenciaProductoRepository
+                .findAllByOrderByFechaIngresoDesc()
+                .stream()
+                .map(this::mapResponse)
+                .toList();
+    }
+
+
     public List<ExistenciaProductoResponseDTO>
             listarExistenciasPorProducto(Long idProducto) {
 

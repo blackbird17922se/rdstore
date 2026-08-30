@@ -11,6 +11,9 @@ import com.dsd.rdstore.model.ExistenciaProducto;
 public interface ExistenciaProductoRepository
         extends JpaRepository<ExistenciaProducto, Long> {
 
+    /** Todas las existencias */
+    List<ExistenciaProducto> findAllByOrderByFechaIngresoDesc();
+
     /** Todas las existencias de un producto */
     List<ExistenciaProducto>
         findByProductoIdOrderByFechaIngresoAsc(Long idProducto);
