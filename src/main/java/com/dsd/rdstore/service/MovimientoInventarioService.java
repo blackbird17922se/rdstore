@@ -140,7 +140,6 @@ System.out.println("Hora Java: " + LocalDateTime.now());
         }
     }
 
-
     private void validarExistencia(Long id) {
 
         if (!existenciaProductoRepository.existsById(id)) {
@@ -195,4 +194,5 @@ System.out.println("Hora Java: " + LocalDateTime.now());
                 movimiento.getObservacion()
         );
     }
+
 }

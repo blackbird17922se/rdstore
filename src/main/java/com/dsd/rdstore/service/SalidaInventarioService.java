@@ -94,4 +94,33 @@ public class SalidaInventarioService {
         movimientoInventarioRepository.save(movimiento);
     }
 
+    public void revertirVenta(Long idVenta) {
+
+        List<MovimientoInventario> movimientos =
+                movimientoInventarioRepository
+                        .findByTipoAndTipoOrigenAndIdOrigen(
+                            EnumTipoMovimientoInventario.VENTA,
+                            EnumTipoOrigenInventario.VENTA,
+                            idVenta);
+
+        for (MovimientoInventario movimiento : movimientos) {
+
+            ExistenciaProducto existencia =
+                    movimiento.getExistencia();
+
+            Long cantidadADevolver =
+                    Math.abs(movimiento.getCantidad());
+
+            existencia.setCantidad(
+                    existencia.getCantidad()
+                            + cantidadADevolver
+            );
+
+            existenciaProductoRepository.save(
+                    existencia
+            );
+
+        }
+    }
+
 }

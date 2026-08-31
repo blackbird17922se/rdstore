@@ -2,11 +2,9 @@ package com.dsd.rdstore.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.dsd.rdstore.model.enums.EnumEstadoVenta;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

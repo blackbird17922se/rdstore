@@ -63,4 +63,5 @@ public class MovimientoInventarioController {
                         .listarPorOrigen(tipo, idOrigen)
         );
     }
+
 }

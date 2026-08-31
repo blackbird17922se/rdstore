@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.dsd.rdstore.model.Venta;
 
 
-public interface VentaRepository extends JpaRepository<Venta, Integer> {
+public interface VentaRepository extends JpaRepository<Venta, Long> {
 
     List<Venta> findAllByOrderByFechaDesc();
     

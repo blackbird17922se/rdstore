@@ -6,10 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.dsd.rdstore.model.DetalleVenta;
 
 
-public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Integer> {
-
+public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
     // filtrar por el id_venta
-    List<DetalleVenta> findByVentaId(Integer idVenta);
-
-    
+    List<DetalleVenta> findByVentaId(Long idVenta);
 }

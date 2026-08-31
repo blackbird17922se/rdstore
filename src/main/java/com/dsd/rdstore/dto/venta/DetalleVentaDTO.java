@@ -1,10 +1,12 @@
 package com.dsd.rdstore.dto.venta;
 
+import java.math.BigDecimal;
+
 public record DetalleVentaDTO(
-    Integer id,
-    Integer idVenta,
+    Long id,
+    Long idVenta,
     String producto,
-    Integer cantidad,
-    Double precioUnitario,
-    Double subtotal
+    Long cantidad,
+    BigDecimal precioUnitario,
+    BigDecimal subtotal
 ) {}

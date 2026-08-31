@@ -4,21 +4,17 @@ import com.dsd.rdstore.repository.DetalleVentaRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.service.spi.InjectService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.dsd.rdstore.dto.entradaInventario.DetalleEntradaInventarioResponseDTO;
 import com.dsd.rdstore.dto.venta.DetalleVentaRequestDTO;
-import com.dsd.rdstore.dto.venta.ProductoVentaDTO;
 import com.dsd.rdstore.dto.venta.VentaRequestDTO;
 import com.dsd.rdstore.dto.venta.VentaResponseDTO;
+import com.dsd.rdstore.exception.NegocioExcepcion;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.Cliente;
-import com.dsd.rdstore.model.DetalleEntradaInventario;
 import com.dsd.rdstore.model.DetalleVenta;
 import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.model.TarifaIva;
@@ -27,7 +23,6 @@ import com.dsd.rdstore.model.Venta;
 import com.dsd.rdstore.model.enums.EnumEstadoVenta;
 import com.dsd.rdstore.repository.ClienteRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
-import com.dsd.rdstore.repository.TarifaIvaRepository;
 import com.dsd.rdstore.repository.UsuarioRepository;
 import com.dsd.rdstore.repository.VentaRepository;
 
@@ -43,7 +38,6 @@ public class VentaService {
     private final VentaRepository ventaRepository;
     private final UsuarioRepository usuarioRepository;
     private final ClienteRepository clienteRepository;
-    private final TarifaIvaRepository tarifaIvaRepository;
 
     private final SalidaInventarioService salidaInventarioService;
 
@@ -56,7 +50,7 @@ public class VentaService {
             .toList();
     }
 
-    public Venta actualizar(Integer id, Venta datosVenta) {
+    public Venta actualizar(Long id, Venta datosVenta) {
         Venta existente = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrado"));
 
@@ -69,7 +63,7 @@ public class VentaService {
         return ventaRepository.save(existente);
     }
 
-    public Venta cambiarEstadoVenta(Integer id, EnumEstadoVenta nuevoEstado) {
+    public Venta cambiarEstadoVenta(Long id, EnumEstadoVenta nuevoEstado) {
         Venta existente = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrado"));
 
@@ -77,7 +71,7 @@ public class VentaService {
         return ventaRepository.save(existente);
     }
 
-    public void eliminar(Integer id) {
+    public void eliminar(Long id) {
         if (!ventaRepository.existsById(id)) {
             throw new RuntimeException("Venta no encontrado");
         }
@@ -147,36 +141,6 @@ public class VentaService {
         return ventaRepository.save(venta);
     }
 
-    // private Venta mapearResponse(VentaRepository venta) {
-
-    //     venta.
-
-    //     return new Venta(
-    //             venta.,
-    //             venta.getProducto().getId(),
-    //             venta.getProducto().getNombre(),
-    //             venta.getCantidad(),
-    //             venta.getNumeroLote(),
-    //             venta.getFechaVencimiento()
-    //     );
-    // }
-
-        // public List<VentaListadoDTO> listar() {
-    //     return ventaRepository.findAll()
-    //         .stream()
-    //         .map(v -> new VentaListadoDTO(
-    //             v.getId(), 
-    //             v.getFecha(), 
-    //             v.getCliente(), 
-    //             v.getTotal(),
-    //             v.getIdVendedor().getNombre() + " " + 
-    //             v.getIdVendedor().getApellido(),
-    //             v.getFechaAnulacion(),
-    //             v.getMotivoAnulacion(),
-    //             v.getEstado().name()
-    //         )).toList();
-    // }
-
 
     private DetalleVenta crearDetalleVenta(DetalleVentaRequestDTO dto,
           Venta venta, Producto producto, TarifaIva tarifaIva){
@@ -235,7 +199,7 @@ public class VentaService {
 
 
     @Transactional
-    public Venta confirmarVenta(Integer id) {
+    public Venta confirmarVenta(Long id) {
         Venta venta = ventaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
 
@@ -250,38 +214,42 @@ public class VentaService {
         return venta;
     }
 
-    // @Transactional
-    // public VentaListadoDTO anularVenta(Integer id, String motivo) {
-    //     Venta venta = ventaRepository.findById(id)
-    //         .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
+    @Transactional
+    public void anularVenta(
+            Long idVenta,
+            String motivo) {
 
-    //     if (venta.getEstado() != EnumEstadoVenta.CONFIRMADA) {
-    //         throw new IllegalStateException("Solo se puede anular una venta CONFIRMADA");
-    //     }
+        Venta venta = ventaRepository.findById(idVenta)
+                .orElseThrow(() ->
+                        new NegocioExcepcion(
+                                "Venta no encontrada"
+                        )
+                );
 
-    //     // revertir inventario
+        if (venta.getEstado() == EnumEstadoVenta.ANULADA) {
+            throw new NegocioExcepcion(
+                    "La venta ya se encuentra anulada"
+            );
+        }
 
-    //     venta.setEstado(EnumEstadoVenta.ANULADA);
-    //     venta.setMotivoAnulacion(motivo);
-    //     venta.setFechaAnulacion(LocalDateTime.now());
+        /*
+        * Restaurar exactamente las existencias
+        * afectadas por la venta.
+        */
+        salidaInventarioService.revertirVenta(idVenta);
 
-    //     ventaRepository.save(venta);
+        venta.setEstado(
+                EnumEstadoVenta.ANULADA
+        );
 
-    //     return mapToListadoDTO(venta);
-    // }
+        venta.setFechaAnulacion(
+                LocalDateTime.now()
+        );
 
-    // private VentaListadoDTO mapToListadoDTO(Venta venta) {
-    //     return new VentaListadoDTO(
-    //         venta.getId(),
-    //         venta.getFecha(),
-    //         venta.getCliente(),
-    //         venta.getTotal(),
-    //         venta.getIdVendedor().getNombre() + " " + venta.getIdVendedor().getApellido(),
-    //         venta.getFechaAnulacion(),
-    //         venta.getMotivoAnulacion(),
-    //         venta.getEstado().name()
-    //     );
-    // }
+        venta.setMotivoAnulacion(motivo);
+
+        ventaRepository.save(venta);
+    }
 
 
     private Producto obtenerProductoPorId(Long id) {
@@ -304,18 +272,6 @@ public class VentaService {
         return usuarioRepository.findByNombreUsuarioAndActivoTrue(nombreUsuario)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario", nombreUsuario)); 
 
-    }
-
-    private TarifaIva obtenerTarifa(Long id) {
-
-    return tarifaIvaRepository
-        .findById(id)
-        .orElseThrow(() ->
-            new ResourceNotFoundException(
-                "Tarifa IVA",
-                id
-            )
-        );
     }
 
 
@@ -345,4 +301,6 @@ public class VentaService {
         );
     }
 
+
+    
 }
