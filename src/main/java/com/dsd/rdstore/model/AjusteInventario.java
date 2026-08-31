@@ -2,7 +2,7 @@ package com.dsd.rdstore.model;
 
 import java.time.LocalDateTime;
 
-import com.dsd.rdstore.model.enums.TipoAjusteInventario;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,7 +55,7 @@ public class AjusteInventario {
         nullable = false,
         length = 20
     )
-    private TipoAjusteInventario tipo;
+    private EnumTipoAjusteInventario tipo;
 
     @Column(nullable = false)
     private Long cantidad;

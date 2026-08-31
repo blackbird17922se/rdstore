@@ -2,7 +2,7 @@ package com.dsd.rdstore.dto.tarifaiva;
 
 import java.math.BigDecimal;
 
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -21,7 +21,7 @@ public record TarifaIvaRequestDTO(
     String nombre,
 
     @NotNull(message = "El tipo de IVA es obligatorio")
-    TipoIva tipo,
+    EnumTipoIva tipo,
 
     @NotNull(message = "El porcentaje es obligatorio")
     @DecimalMin(

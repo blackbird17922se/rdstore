@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dsd.rdstore.model.TarifaIva;
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 
 public interface TarifaIvaRepository
         extends JpaRepository<TarifaIva, Long> {
@@ -19,12 +19,12 @@ public interface TarifaIvaRepository
     );
 
     boolean existsByTipoAndPorcentaje(
-        TipoIva tipo,
+        EnumTipoIva tipo,
         BigDecimal porcentaje
     );
 
     boolean existsByTipoAndPorcentajeAndIdNot(
-        TipoIva tipo,
+        EnumTipoIva tipo,
         BigDecimal porcentaje,
         Long id
     );

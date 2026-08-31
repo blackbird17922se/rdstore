@@ -65,6 +65,8 @@ public class SecurityConfig {
                             .authenticated()
                         .requestMatchers("/api/v2/productos/**")
                             .authenticated()
+                        .requestMatchers("/api/v2/ventas/**")
+                            .authenticated()
 
                         // Administración de usuarios
                         .requestMatchers("/api/v2/usuarios/**")

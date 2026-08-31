@@ -3,7 +3,7 @@ package com.dsd.rdstore.dto.ajusteInventario;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.dsd.rdstore.model.enums.TipoAjusteInventario;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
 
 public record AjusteInventarioResponseDTO(
 
@@ -17,7 +17,7 @@ public record AjusteInventarioResponseDTO(
         String numeroLote,
         LocalDate fechaVencimiento,
 
-        TipoAjusteInventario tipo,
+        EnumTipoAjusteInventario tipo,
         Long cantidad,
 
         String motivo,

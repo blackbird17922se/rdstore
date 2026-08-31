@@ -13,9 +13,9 @@ import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.AjusteInventario;
 import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.Usuario;
-import com.dsd.rdstore.model.enums.TipoAjusteInventario;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.AjusteInventarioRepository;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.UsuarioRepository;
@@ -144,12 +144,12 @@ public class AjusteInventarioService {
 
     private void aplicarAjuste(
             ExistenciaProducto existencia,
-            TipoAjusteInventario tipo,
+            EnumTipoAjusteInventario tipo,
             Long cantidad) {
 
         Long cantidadActual = existencia.getCantidad();
 
-        if (tipo == TipoAjusteInventario.ENTRADA) {
+        if (tipo == EnumTipoAjusteInventario.ENTRADA) {
 
             existencia.setCantidad(
                     cantidadActual + cantidad
@@ -176,13 +176,13 @@ public class AjusteInventarioService {
             ExistenciaProducto existencia,
             AjusteInventario ajuste) {
 
-        TipoMovimientoInventario tipoMovimiento;
+        EnumTipoMovimientoInventario tipoMovimiento;
         Long cantidadMovimiento;
 
-        if (ajuste.getTipo() == TipoAjusteInventario.ENTRADA) {
+        if (ajuste.getTipo() == EnumTipoAjusteInventario.ENTRADA) {
 
             tipoMovimiento =
-                    TipoMovimientoInventario.AJUSTE_ENTRADA;
+                    EnumTipoMovimientoInventario.AJUSTE_ENTRADA;
 
             cantidadMovimiento =
                     ajuste.getCantidad();
@@ -190,7 +190,7 @@ public class AjusteInventarioService {
         } else {
 
             tipoMovimiento =
-                    TipoMovimientoInventario.AJUSTE_SALIDA;
+                    EnumTipoMovimientoInventario.AJUSTE_SALIDA;
 
             cantidadMovimiento =-ajuste.getCantidad(); //ajuste.getCantidad() pasa a val negativo
         }
@@ -199,7 +199,7 @@ public class AjusteInventarioService {
                 existencia,
                 tipoMovimiento,
                 cantidadMovimiento,
-                TipoOrigenInventario.AJUSTE_INVENTARIO,
+                EnumTipoOrigenInventario.AJUSTE_INVENTARIO,
                 ajuste.getId(),
                 ajuste.getMotivo()
         );

@@ -1,0 +1,14 @@
+package com.dsd.rdstore.dto.venta;
+
+import java.time.LocalDateTime;
+
+public record VentaListadoDTO(
+    Integer id,
+    LocalDateTime fecha,
+    String cliente,
+    Double total,
+    String vendedor,
+    LocalDateTime fechaAnulacion,
+    String motivoAnulacion,
+    String estado
+) {}

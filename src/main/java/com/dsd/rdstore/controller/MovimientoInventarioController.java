@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dsd.rdstore.dto.movimientoInventario.MovimientoInventarioResponseDTO;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.service.MovimientoInventarioService;
 
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class MovimientoInventarioController {
     @GetMapping("/origen")
     public ResponseEntity<List<MovimientoInventarioResponseDTO>>
             listarPorOrigen(
-                    @RequestParam TipoOrigenInventario tipo,
+                    @RequestParam EnumTipoOrigenInventario tipo,
                     @RequestParam Long idOrigen) {
 
         return ResponseEntity.ok(

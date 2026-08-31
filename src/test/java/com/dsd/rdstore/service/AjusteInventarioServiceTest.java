@@ -22,9 +22,9 @@ import com.dsd.rdstore.model.AjusteInventario;
 import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.model.Usuario;
-import com.dsd.rdstore.model.enums.TipoAjusteInventario;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.AjusteInventarioRepository;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.UsuarioRepository;
@@ -57,7 +57,7 @@ class AjusteInventarioServiceTest {
         AjusteInventarioRequestDTO dto =
                 new AjusteInventarioRequestDTO(
                         6L,
-                        TipoAjusteInventario.SALIDA,
+                        EnumTipoAjusteInventario.SALIDA,
                         3L,
                         "Producto dañado",
                         "Daño físico"
@@ -88,14 +88,14 @@ class AjusteInventarioServiceTest {
 
         assertEquals(21L, existencia.getCantidad());
         assertEquals(3L, respuesta.cantidad());
-        assertEquals(TipoAjusteInventario.SALIDA, respuesta.tipo());
+        assertEquals(EnumTipoAjusteInventario.SALIDA, respuesta.tipo());
 
         verify(movimientoInventarioService)
                 .registrarMovimiento(
                         existencia,
-                        TipoMovimientoInventario.AJUSTE_SALIDA,
+                        EnumTipoMovimientoInventario.AJUSTE_SALIDA,
                         -3L,
-                        TipoOrigenInventario.AJUSTE_INVENTARIO,
+                        EnumTipoOrigenInventario.AJUSTE_INVENTARIO,
                         1L,
                         "Producto dañado"
                 );
@@ -111,7 +111,7 @@ class AjusteInventarioServiceTest {
         AjusteInventarioRequestDTO dto =
                 new AjusteInventarioRequestDTO(
                         6L,
-                        TipoAjusteInventario.SALIDA,
+                        EnumTipoAjusteInventario.SALIDA,
                         15L,
                         "Prueba stock insuficiente",
                         null
@@ -157,7 +157,7 @@ class AjusteInventarioServiceTest {
         AjusteInventarioRequestDTO dto =
                 new AjusteInventarioRequestDTO(
                         6L,
-                        TipoAjusteInventario.ENTRADA,
+                        EnumTipoAjusteInventario.ENTRADA,
                         5L,
                         "Unidades encontradas",
                         null
@@ -190,9 +190,9 @@ class AjusteInventarioServiceTest {
         verify(movimientoInventarioService)
                 .registrarMovimiento(
                         existencia,
-                        TipoMovimientoInventario.AJUSTE_ENTRADA,
+                        EnumTipoMovimientoInventario.AJUSTE_ENTRADA,
                         5L,
-                        TipoOrigenInventario.AJUSTE_INVENTARIO,
+                        EnumTipoOrigenInventario.AJUSTE_INVENTARIO,
                         2L,
                         "Unidades encontradas"
                 );

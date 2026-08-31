@@ -26,8 +26,8 @@ import com.dsd.rdstore.model.DetalleEntradaInventario;
 import com.dsd.rdstore.model.EntradaInventario;
 import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.Producto;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.DetalleEntradaInventarioRepository;
 import com.dsd.rdstore.repository.EntradaInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
@@ -140,9 +140,9 @@ class EntradaInventarioServiceTest {
         verify(movimientoInventarioService)
                 .registrarMovimiento(
                         existencia,
-                        TipoMovimientoInventario.ENTRADA,
+                        EnumTipoMovimientoInventario.ENTRADA,
                         24L,
-                        TipoOrigenInventario.ENTRADA_INVENTARIO,
+                        EnumTipoOrigenInventario.ENTRADA_INVENTARIO,
                         1L,
                         "Entrada de inventario"
                 );
