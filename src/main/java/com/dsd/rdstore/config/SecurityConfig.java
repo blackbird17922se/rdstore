@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import com.dsd.rdstore.security.JwtAccessDeniedHandler;
 import com.dsd.rdstore.security.JwtAuthFilter;
@@ -53,40 +54,91 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Login público
-                        .requestMatchers("/api/v2/auth/**").permitAll()
-                        // ante errores mostrar el error y no mandarme al login
-                        .requestMatchers("/error").permitAll()
+                    // Público
+                    .requestMatchers("/api/v2/auth/**").permitAll()
+                    .requestMatchers("/error").permitAll()
 
-                        // Solo autenticados
-                        .requestMatchers("/api/v2/perfil/**")
-                            .authenticated()
-                        .requestMatchers("/api/v2/marcas/**")
-                            .authenticated()
-                        .requestMatchers("/api/v2/productos/**")
-                            .authenticated()
-                        .requestMatchers("/api/v2/ventas/**")
-                            .authenticated()
+                    // Perfil propio: cualquier usuario autenticado
+                    .requestMatchers("/api/v2/usuarios/perfil/**")
+                        .authenticated()
 
-                        // Administración de usuarios
-                        .requestMatchers("/api/v2/usuarios/**")
+                    // ==========================================
+                    // VENTAS
+                    // ==========================================
+
+                    // Anulación: solo ADMIN
+                    .requestMatchers(
+                        HttpMethod.PATCH,
+                        "/api/v2/ventas/*/anular"
+                    )
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/roles/**")
+
+                    // Venta, historial y detalle
+                    .requestMatchers("/api/v2/ventas/**")
+                        .hasAnyRole("ADMIN", "VENDEDOR")
+
+                    // ==========================================
+                    // CLIENTES
+                    // ==========================================
+
+                    .requestMatchers("/api/v2/clientes/**")
+                        .hasAnyRole("ADMIN", "VENDEDOR")
+
+                    // ==========================================
+                    // PRODUCTOS - CONSULTA
+                    // ==========================================
+
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/v2/productos/**"
+                    )
+                        .hasAnyRole("ADMIN", "VENDEDOR")
+
+                    // Modificación de productos: ADMIN
+                    .requestMatchers("/api/v2/productos/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/tarifas-iva/**")
+
+                    // ==========================================
+                    // ADMINISTRACIÓN
+                    // ==========================================
+
+                    .requestMatchers("/api/v2/usuarios/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/entradas-inventario/**")
+
+                    .requestMatchers("/api/v2/roles/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/presentaciones/**")
+
+                    .requestMatchers("/api/v2/tarifas-iva/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/movimientos-inventario/**")
+
+                    .requestMatchers("/api/v2/marcas/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/categorias/**")
+
+                    .requestMatchers("/api/v2/presentaciones/**")
                         .hasRole("ADMIN")
-                        .requestMatchers("/api/v2/clientes/**")
+
+                    .requestMatchers("/api/v2/categorias/**")
                         .hasRole("ADMIN")
-                        
-                        .anyRequest().authenticated()
+
+                    // ==========================================
+                    // INVENTARIO
+                    // ==========================================
+
+                    .requestMatchers("/api/v2/entradas-inventario/**")
+                        .hasRole("ADMIN")
+
+                    .requestMatchers("/api/v2/existencias/**")
+                        .hasRole("ADMIN")
+
+                    .requestMatchers("/api/v2/movimientos-inventario/**")
+                        .hasRole("ADMIN")
+
+                    .requestMatchers("/api/v2/ajustes-inventario/**")
+                        .hasRole("ADMIN")
+
+                    // Todo endpoint no contemplado requiere login
+                    .anyRequest()
+                        .authenticated()
                 )
 
                 /*
