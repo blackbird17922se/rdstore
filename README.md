@@ -699,6 +699,19 @@ America/Bogota
 
 ---
 
+
+## 🗄️ Base de datos
+
+DStore utiliza **MySQL** como motor de base de datos.
+
+Los scripts necesarios para crear la estructura y los datos iniciales se encuentran en:
+
+```text
+database/
+├── 01_schema.sql
+└── 02_catalogos.sql
+
+
 ## ▶️ Ejecución
 
 ### Requisitos
