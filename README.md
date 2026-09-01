@@ -1,10 +1,46 @@
-# 🛒 DStore - Sistema de Gestión de Ventas e Inventario
+# 🛒 DStore - Backend
 
-DStore es una aplicación web orientada a la gestión de ventas e inventario para pequeños negocios como papelerías, cacharrerías, tiendas locales y comercios con productos que requieren control de vencimiento.
+Backend de **DStore**, una aplicación web orientada a la gestión de ventas e inventario para pequeños comercios como papelerías, cacharrerías, tiendas locales y negocios que requieren control de existencias y vencimientos.
 
-El proyecto se desarrolla como una solución Full Stack utilizando **Java, Spring Boot y Angular**, con énfasis en buenas prácticas, seguridad, trazabilidad de inventario y reglas de negocio reales.
+La API está desarrollada con **Java 21 y Spring Boot** y forma parte de una solución Full Stack integrada con un frontend en **Angular 20**.
 
-Además de su propósito funcional, DStore forma parte de mi portafolio profesional y de mi proceso de fortalecimiento en desarrollo Full Stack.
+DStore busca representar un sistema pequeño pero realista, priorizando reglas de negocio, seguridad, trazabilidad, consistencia de inventario y una arquitectura comprensible.
+
+---
+
+## 🔗 Repositorios
+
+### Backend
+
+Este repositorio contiene la API REST de DStore.
+
+### Frontend
+
+[DStore Frontend - Angular](https://github.com/blackbird17922se/dstore-front)
+
+---
+
+## 🎯 Objetivo del proyecto
+
+El sistema cubre un flujo comercial completo:
+
+```text
+Catálogos y productos
+        ↓
+Entradas de inventario
+        ↓
+Existencias
+        ↓
+Ventas
+        ↓
+Consumo FEFO / FIFO
+        ↓
+Movimientos de inventario
+        ↓
+Anulación y reversión
+```
+
+Además, incorpora autenticación JWT, roles, gestión de usuarios, clientes, tarifas de IVA y perfil del usuario autenticado.
 
 ---
 
@@ -15,286 +51,28 @@ Además de su propósito funcional, DStore forma parte de mi portafolio profesio
 - Java 21
 - Spring Boot
 - Spring Security
-- JWT (JSON Web Token)
-- JPA / Hibernate
+- JWT
+- Spring Data JPA
+- Hibernate
 - Bean Validation
 - MySQL
+- Maven
 - JUnit 5
 - Mockito
-- Maven
 
-### Frontend
+### Frontend relacionado
 
-- Angular
+- Angular 20
 - TypeScript
 - RxJS
 - Angular Router
-- Interceptors
-- Guards
-
-> El frontend se encuentra en un repositorio independiente y actualmente está siendo adaptado a la versión actual del backend.
-
-### Base de datos
-
-- MySQL
+- HttpClient
+- Functional Interceptors
+- Route Guards
 
 ---
 
-## 📂 Repositorios
-
-### Backend
-
-[DStore Backend](https://github.com/blackbird17922se/rdstore)
-
-### Frontend
-
-[DStore Frontend](https://github.com/blackbird17922se/dstore-front)
-
----
-
-## 🔐 Seguridad
-
-El backend implementa autenticación y autorización mediante Spring Security y JWT.
-
-Actualmente incluye:
-
-- Login de usuarios.
-- Contraseñas protegidas con BCrypt.
-- Generación y validación de JWT.
-- Filtro JWT para autenticación de peticiones.
-- Control de acceso por roles.
-- Manejo personalizado de errores `401 Unauthorized`.
-- Manejo personalizado de errores `403 Forbidden`.
-- Gestión del perfil del usuario autenticado.
-- Cambio seguro de contraseña.
-- Sesiones stateless.
-
-### Roles actuales
-
-| Rol | Responsabilidad |
-| --- | --- |
-| `ADMIN` | Administración del sistema, productos e inventario |
-| `VENDEDOR` | Operaciones permitidas según las reglas de seguridad |
-
----
-
-## 🧠 Flujo de autenticación
-
-1. El usuario envía sus credenciales al backend.
-2. Spring Security valida el usuario y la contraseña.
-3. El backend genera un JWT firmado.
-4. El cliente almacena el token.
-5. Cada petición protegida envía:
-
-```text
-Authorization: Bearer TOKEN
-```
-
-6. El filtro JWT valida el token.
-7. Spring Security identifica al usuario y sus roles.
-8. El acceso al endpoint se permite o rechaza según sus permisos.
-
----
-
-## 📦 Módulos implementados
-
-### 👥 Usuarios y seguridad
-
-- Gestión de usuarios.
-- Gestión de roles.
-- Activación y desactivación de usuarios.
-- Cambio de contraseña.
-- Perfil propio del usuario.
-- Autenticación JWT.
-- Autorización por roles.
-
-### 🗂️ Catálogos
-
-- Categorías.
-- Marcas.
-- Presentaciones.
-- Tarifas de IVA.
-- Activación y desactivación de catálogos cuando aplica.
-- Validación de registros duplicados.
-
-### 📦 Productos
-
-- Registro de productos.
-- Código de barras opcional y único.
-- Marca.
-- Categoría.
-- Presentación.
-- Tarifa de IVA.
-- Precio mediante `BigDecimal`.
-- Activación y desactivación.
-- Configuración de control de vencimiento.
-- Validación de relaciones activas.
-
-El stock no se almacena directamente en el producto.
-
-El stock disponible se obtiene a partir de las existencias registradas en inventario.
-
----
-
-## 🏬 Gestión de inventario
-
-El inventario fue diseñado para mantener trazabilidad sobre el origen y estado actual de las existencias.
-
-### Entradas de inventario
-
-Una entrada representa mercancía recibida por el negocio.
-
-Ejemplo:
-
-```text
-Entrada de inventario
-│
-├── Leche x12
-│   ├── Lote: L001
-│   └── Vencimiento: 10/09/2026
-│
-├── Leche x24
-│   ├── Lote: L002
-│   └── Vencimiento: 25/09/2026
-│
-└── Lápices x50
-    ├── Lote: -
-    └── Vencimiento: -
-```
-
-Una misma entrada puede contener múltiples productos e incluso varias existencias del mismo producto con diferentes fechas de vencimiento.
-
-### Existencias
-
-Cada existencia representa una cantidad específica de un producto.
-
-Puede contener:
-
-- Producto.
-- Cantidad disponible.
-- Número de lote opcional.
-- Fecha de vencimiento opcional.
-- Fecha de ingreso.
-
-Esto permite controlar productos perecederos sin obligar a todos los productos a utilizar lotes o vencimientos.
-
-### Stock
-
-El stock actual se calcula mediante las existencias:
-
-```text
-Stock producto = suma de sus existencias disponibles
-```
-
-Esto evita mantener el mismo dato duplicado entre `Producto` y `ExistenciaProducto`.
-
----
-
-## 📜 Movimientos de inventario
-
-Cada cambio realizado sobre una existencia genera un movimiento histórico.
-
-Tipos actualmente contemplados:
-
-- `ENTRADA`
-- `VENTA`
-- `AJUSTE_ENTRADA`
-- `AJUSTE_SALIDA`
-
-Ejemplo:
-
-```text
-ENTRADA         +24
-AJUSTE_SALIDA    -3
--------------------
-Existencia actual 21
-```
-
-Cada movimiento conserva:
-
-- Existencia afectada.
-- Producto.
-- Tipo de movimiento.
-- Cantidad.
-- Fecha.
-- Tipo de operación que lo originó.
-- ID de la operación de origen.
-- Observación.
-
-Los movimientos son registros históricos y no se modifican ni eliminan directamente.
-
----
-
-## 🔧 Ajustes de inventario
-
-Los ajustes permiten corregir diferencias detectadas entre el inventario físico y el registrado en el sistema.
-
-Ejemplo:
-
-```text
-Existencia actual: 24
-
-Producto dañado:
-Ajuste SALIDA: 3
-
-Nueva existencia: 21
-
-Movimiento generado:
-AJUSTE_SALIDA -3
-```
-
-Cada ajuste:
-
-- Se realiza sobre una existencia específica.
-- Registra el usuario responsable.
-- Registra fecha y motivo.
-- Puede incrementar o disminuir una existencia.
-- Nunca permite dejar una existencia negativa.
-- Genera automáticamente un movimiento de inventario.
-
-Las operaciones se ejecutan mediante `@Transactional` para mantener la consistencia de los datos.
-
----
-
-## ⏳ Control de vencimientos
-
-Los productos pueden configurarse para requerir control de vencimiento.
-
-Cuando un producto tiene esta configuración activa:
-
-- La fecha de vencimiento es obligatoria durante una entrada.
-- Diferentes fechas generan existencias independientes.
-- Es posible consultar productos próximos a vencer.
-- La estructura está preparada para utilizar estrategias como **FEFO (First Expired, First Out)** durante futuras ventas.
-
-Los productos que no requieren vencimiento continúan funcionando mediante existencias normales.
-
----
-
-## 🧾 IVA
-
-DStore utiliza un catálogo configurable de tarifas de IVA.
-
-Actualmente se pueden manejar conceptos como:
-
-- Gravado.
-- Exento.
-- Excluido.
-
-Las tarifas tienen:
-
-- Nombre.
-- Tipo.
-- Porcentaje.
-- Estado activo/inactivo.
-
-Cada producto se relaciona con una tarifa de IVA.
-
-Esto evita almacenar manualmente el porcentaje en cada producto y permite administrar las tarifas centralizadamente.
-
----
-
-## 🧩 Arquitectura
+## 🧱 Arquitectura
 
 El backend utiliza una arquitectura tradicional en capas:
 
@@ -320,55 +98,584 @@ Enums
 
 ### Responsabilidades
 
-**Controller**
+**Controller**  
+Expone los endpoints REST y gestiona las peticiones y respuestas HTTP.
 
-Gestiona las peticiones y respuestas HTTP.
+**Service**  
+Contiene reglas de negocio, validaciones y operaciones transaccionales.
 
-**Service**
-
-Contiene reglas de negocio y operaciones transaccionales.
-
-**Repository**
-
+**Repository**  
 Gestiona el acceso a datos mediante Spring Data JPA.
 
-**DTO**
+**DTO**  
+Define contratos específicos para entrada y salida de información.
 
-Controla la información que entra y sale de la API.
+**Security**  
+Gestiona autenticación, autorización y validación del JWT.
+
+**Exceptions**  
+Centraliza errores técnicos y reglas de negocio.
 
 ---
 
-## ✅ Pruebas
+## 🔐 Seguridad y autenticación
+
+DStore implementa autenticación y autorización mediante **Spring Security + JWT**.
+
+Actualmente incluye:
+
+- Login.
+- Contraseñas protegidas con BCrypt.
+- Generación y validación de JWT.
+- Filtro JWT.
+- Sesiones stateless.
+- Autorización por roles.
+- Manejo personalizado de `401 Unauthorized`.
+- Manejo personalizado de `403 Forbidden`.
+- Protección de endpoints.
+- Perfil del usuario autenticado.
+- Cambio seguro de contraseña.
+- Activación y desactivación de usuarios.
+
+### Flujo de autenticación
+
+```text
+Usuario
+   ↓
+POST /api/v2/auth/login
+   ↓
+Spring Security
+   ↓
+Validación de credenciales
+   ↓
+JWT
+   ↓
+Cliente
+   ↓
+Authorization: Bearer TOKEN
+   ↓
+Filtro JWT
+   ↓
+Endpoint protegido
+```
+
+El usuario responsable de operaciones como ventas o ajustes se obtiene desde el contexto autenticado y no desde datos manipulables enviados por el cliente.
+
+---
+
+## 👤 Usuarios, roles y perfil
+
+El módulo de usuarios permite:
+
+- Crear usuarios.
+- Listar usuarios.
+- Editar información general.
+- Asignar roles.
+- Activar y desactivar usuarios.
+- Evitar eliminación física como flujo principal.
+- Consultar el perfil del usuario autenticado.
+- Actualizar información personal.
+- Cambiar contraseña validando previamente la contraseña actual.
+
+La edición administrativa del usuario no utiliza la contraseña como parte del flujo normal de actualización.
+
+---
+
+## 🗂️ Catálogos
+
+El backend administra catálogos utilizados por los productos:
+
+- Categorías.
+- Marcas.
+- Presentaciones.
+- Tarifas de IVA.
+
+Incluye reglas como:
+
+- Validación de duplicados.
+- Activación y desactivación.
+- Validación de relaciones activas antes de asociarlas a un producto.
+
+---
+
+## 📦 Productos
+
+El módulo de productos permite:
+
+- Crear productos.
+- Actualizar productos.
+- Consultar productos.
+- Activar y desactivar productos.
+- Código de barras opcional y único.
+- Marca.
+- Categoría.
+- Presentación.
+- Tarifa de IVA.
+- Precio mediante `BigDecimal`.
+- Configuración de control de vencimiento.
+
+### Stock
+
+El stock **no se almacena directamente en `Producto`**.
+
+La fuente de verdad es `ExistenciaProducto`.
+
+```text
+Stock producto
+    =
+SUM(existencias.cantidad)
+```
+
+Esto permite soportar múltiples lotes, distintas fechas de ingreso y diferentes fechas de vencimiento sin duplicar el stock en varias entidades.
+
+---
+
+## 👥 Clientes
+
+El módulo de clientes permite:
+
+- Crear clientes.
+- Editar clientes.
+- Consultar clientes.
+- Activar y desactivar clientes.
+- Manejar diferentes tipos de documento.
+- Registrar teléfono, correo, dirección y observaciones.
+
+El cliente es opcional en una venta normal.
+
+---
+
+## 📥 Entradas de inventario
+
+Una entrada de inventario representa mercancía recibida por el negocio.
+
+Una misma entrada puede contener varios productos:
+
+```text
+Entrada #25
+│
+├── Leche x12
+│   ├── Lote: L001
+│   └── Vencimiento: 10/09/2026
+│
+├── Leche x24
+│   ├── Lote: L002
+│   └── Vencimiento: 25/09/2026
+│
+└── Lápices x50
+    ├── Lote: -
+    └── Vencimiento: -
+```
+
+Al registrar una entrada se generan:
+
+```text
+EntradaInventario
+      ↓
+DetalleEntradaInventario
+      ↓
+ExistenciaProducto
+      ↓
+MovimientoInventario
+```
+
+Las entradas se consideran históricas y no se editan ni eliminan como una operación CRUD convencional.
+
+---
+
+## 📦 Existencias
+
+Cada `ExistenciaProducto` representa una cantidad específica disponible de un producto.
+
+Puede contener:
+
+- Producto.
+- Cantidad actual.
+- Número de lote opcional.
+- Fecha de vencimiento opcional.
+- Fecha de ingreso.
+
+Una existencia nunca debe manejar cantidad negativa.
+
+El backend permite consultar:
+
+- Existencias generales.
+- Existencias por producto.
+- Existencias disponibles.
+- Productos próximos a vencer.
+
+---
+
+## ⏳ Control de vencimientos
+
+Los productos pueden configurarse con control de vencimiento.
+
+Cuando un producto lo requiere:
+
+- La fecha de vencimiento forma parte del control de inventario.
+- Diferentes vencimientos pueden generar existencias independientes.
+- Es posible consultar productos próximos a vencer.
+- Durante una venta se utiliza estrategia **FEFO**.
+
+```text
+FEFO
+First Expired, First Out
+
+Vence primero
+      ↓
+Sale primero
+```
+
+Para productos que no manejan vencimiento se utiliza **FIFO**:
+
+```text
+FIFO
+First In, First Out
+
+Entra primero
+      ↓
+Sale primero
+```
+
+La selección de la existencia es responsabilidad del backend, no del frontend.
+
+---
+
+## 📜 Movimientos de inventario
+
+Cada cambio significativo sobre una existencia genera un movimiento histórico.
+
+Entre los tipos utilizados se encuentran:
+
+- `ENTRADA`
+- `VENTA`
+- `AJUSTE_ENTRADA`
+- `AJUSTE_SALIDA`
+- `ANULACION_VENTA`
+
+Cada movimiento conserva:
+
+- Existencia afectada.
+- Producto.
+- Tipo de movimiento.
+- Cantidad.
+- Fecha.
+- Tipo de origen.
+- ID de la operación de origen.
+- Observación.
+
+Ejemplo:
+
+```text
+ENTRADA            +10
+VENTA                -3
+ANULACION_VENTA      +3
+------------------------
+Existencia actual    10
+```
+
+Los movimientos sirven como trazabilidad y no se eliminan para “deshacer” operaciones.
+
+---
+
+## 🔧 Ajustes de inventario
+
+Los ajustes permiten corregir diferencias entre inventario físico y sistema.
+
+Un ajuste puede:
+
+- Incrementar una existencia.
+- Disminuir una existencia.
+- Registrar motivo y observación.
+- Identificar al usuario responsable.
+- Generar automáticamente un movimiento.
+- Evitar cantidades negativas.
+
+Ejemplo:
+
+```text
+Existencia actual: 24
+
+Producto dañado:
+AJUSTE_SALIDA: 3
+
+Nueva existencia: 21
+
+Movimiento:
+AJUSTE_SALIDA -3
+```
+
+Las operaciones se ejecutan de forma transaccional para conservar la consistencia entre ajuste, existencia y movimiento.
+
+---
+
+## 🧾 IVA
+
+DStore utiliza un catálogo de tarifas de IVA.
+
+Los productos se relacionan con una tarifa que puede representar conceptos como:
+
+- Gravado.
+- Exento.
+- Excluido.
+
+Cada tarifa conserva:
+
+- Tipo.
+- Porcentaje.
+- Estado.
+
+### Precio final al público
+
+En esta versión:
+
+```text
+Producto.precio
+=
+precio final al público con IVA incluido
+```
+
+Por ejemplo:
+
+```text
+Precio final: 11.900
+IVA: 19%
+
+Base: 10.000
+IVA:   1.900
+Total: 11.900
+```
+
+Durante una venta, el backend obtiene el precio y la tarifa directamente desde el producto y calcula la base y el IVA incluido.
+
+---
+
+## 🛒 Ventas
+
+El módulo de ventas se encuentra integrado con inventario, usuarios, clientes e IVA.
+
+### Registro de venta
+
+El cliente envía únicamente la información necesaria:
+
+```json
+{
+  "idCliente": null,
+  "observacion": null,
+  "detalles": [
+    {
+      "idProducto": 11,
+      "cantidad": 2
+    },
+    {
+      "idProducto": 6,
+      "cantidad": 1
+    }
+  ]
+}
+```
+
+El frontend **no decide**:
+
+- Precio.
+- IVA.
+- Vendedor.
+- Existencia o lote que debe consumirse.
+
+El backend obtiene esos valores desde sus fuentes confiables.
+
+### Flujo
+
+```text
+VentaRequest
+    ↓
+Usuario autenticado
+    ↓
+Cliente opcional
+    ↓
+Producto
+    ↓
+Precio + Tarifa IVA
+    ↓
+Venta
+    ↓
+DetalleVenta
+    ↓
+SalidaInventarioService
+    ↓
+FEFO / FIFO
+    ↓
+ExistenciaProducto
+    ↓
+MovimientoInventario
+```
+
+Las operaciones principales se ejecutan con `@Transactional`.
+
+---
+
+## 🧾 Detalle de venta
+
+Cada detalle conserva una fotografía histórica de la operación.
+
+Incluye información como:
+
+- Producto.
+- Cantidad.
+- Precio unitario.
+- Tipo de IVA.
+- Porcentaje de IVA.
+- Subtotal/base.
+- Valor de IVA.
+- Total.
+
+Esto evita que una venta histórica cambie si posteriormente se modifica:
+
+```text
+Producto.precio
+TarifaIva
+```
+
+El detalle representa las condiciones reales aplicadas al momento de vender.
+
+---
+
+## ❌ Anulación de ventas
+
+Una venta confirmada puede ser anulada indicando un motivo.
+
+La anulación:
+
+- Cambia el estado de la venta.
+- Registra fecha de anulación.
+- Registra motivo.
+- Busca los movimientos originales generados por la venta.
+- Restaura exactamente las existencias afectadas.
+- Conserva los movimientos originales.
+- Genera movimientos inversos `ANULACION_VENTA`.
+- Evita anular dos veces la misma venta mediante una regla de negocio.
+
+Ejemplo:
+
+```text
+VENTA            -3   Existencia #11
+ANULACION_VENTA  +3   Existencia #11
+```
+
+Esto mantiene la trazabilidad completa de la operación.
+
+---
+
+## ⚠️ Manejo de reglas de negocio
+
+DStore utiliza una excepción específica para reglas de negocio:
+
+```java
+throw new NegocioExcepcion(
+    "La venta ya se encuentra anulada"
+);
+```
+
+Este tipo de excepción permite diferenciar errores funcionales de errores técnicos inesperados y devolver respuestas más claras al cliente.
+
+---
+
+## ✅ Validación
+
+Los DTO utilizan Bean Validation para proteger los contratos de entrada.
+
+Ejemplos de reglas utilizadas:
+
+- `@NotNull`
+- `@NotBlank`
+- `@NotEmpty`
+- `@Positive`
+- `@Size`
+- `@Valid`
+- `@PastOrPresent`
+- `@FutureOrPresent`
+
+Las reglas críticas se validan además en la capa de servicio.
+
+---
+
+## 🧪 Pruebas
 
 El proyecto utiliza:
 
 - JUnit 5
 - Mockito
 
-Se realizan pruebas unitarias principalmente sobre servicios y reglas de negocio.
+Se realizan pruebas unitarias representativas principalmente sobre servicios y reglas de negocio.
 
-Entre los escenarios cubiertos se encuentran:
+Entre los escenarios trabajados se encuentran:
 
 - Creación de productos.
-- Validación de código de barras.
-- Relaciones activas/inactivas.
+- Código de barras duplicado.
+- Validación de catálogos relacionados.
+- Cambio de estado.
 - Entradas de inventario.
-- Productos inactivos.
 - Ajustes de inventario.
 - Stock insuficiente.
 - Generación de movimientos.
-- Validaciones de reglas de negocio.
-- Autenticación y JWT.
+- Validaciones de negocio.
+- Seguridad y autenticación.
 
-También se realizan pruebas funcionales de los endpoints mediante Postman.
+También se realizan pruebas funcionales de endpoints mediante Postman.
+
+---
+
+## 🌐 Principales endpoints
+
+La API utiliza como base:
+
+```text
+/api/v2
+```
+
+Algunos recursos disponibles:
+
+```text
+/auth
+/usuarios
+/roles
+/categorias
+/marcas
+/presentaciones
+/tarifas-iva
+/productos
+/clientes
+/entradas-inventario
+/existencias
+/movimientos-inventario
+/ajustes-inventario
+/ventas
+```
+
+Ejemplos del módulo de ventas:
+
+```text
+POST   /api/v2/ventas
+GET    /api/v2/ventas
+GET    /api/v2/ventas/{id}
+PATCH  /api/v2/ventas/{id}/anular
+```
+
+Perfil del usuario:
+
+```text
+GET    /api/v2/usuarios/perfil
+PUT    /api/v2/usuarios/perfil
+PATCH  /api/v2/usuarios/perfil/contrasena
+```
 
 ---
 
 ## ⚙️ Configuración
 
-La aplicación utiliza variables de entorno para evitar almacenar credenciales dentro del repositorio.
+La aplicación utiliza variables de entorno para evitar almacenar credenciales y secretos dentro del repositorio.
 
-Variables requeridas:
+Variables principales:
 
 ```text
 DB_USERNAME
@@ -376,7 +683,7 @@ DB_PASSWORD
 JWT_SECRET
 ```
 
-Ejemplo de configuración:
+Ejemplo:
 
 ```properties
 spring.datasource.username=${DB_USERNAME}
@@ -384,7 +691,7 @@ spring.datasource.password=${DB_PASSWORD}
 jwt.secret=${JWT_SECRET}
 ```
 
-La zona horaria utilizada por la aplicación es:
+Zona horaria:
 
 ```text
 America/Bogota
@@ -392,16 +699,35 @@ America/Bogota
 
 ---
 
-## ▶️ Ejecución del Backend
 
-Clonar el repositorio:
+## 🗄️ Base de datos
+
+DStore utiliza **MySQL** como motor de base de datos.
+
+Los scripts necesarios para crear la estructura y los datos iniciales se encuentran en:
+
+```text
+database/
+├── 01_schema.sql
+└── 02_catalogos.sql
+
+
+## ▶️ Ejecución
+
+### Requisitos
+
+- Java 21
+- Maven
+- MySQL
+
+Clonar:
 
 ```bash
 git clone https://github.com/blackbird17922se/rdstore.git
 cd rdstore
 ```
 
-Configurar las variables de entorno:
+Configurar:
 
 ```text
 DB_USERNAME
@@ -409,137 +735,185 @@ DB_PASSWORD
 JWT_SECRET
 ```
 
-Luego ejecutar:
+Compilar:
 
 ```bash
 mvn clean install
-mvn spring-boot:run
-```
-
----
-
-## ▶️ Ejecución del Frontend
-
-Clonar el repositorio:
-
-```bash
-git clone https://github.com/blackbird17922se/dstore-front.git
-```
-
-Instalar dependencias:
-
-```bash
-npm install
 ```
 
 Ejecutar:
 
 ```bash
-ng serve
+mvn spring-boot:run
 ```
 
-> El frontend se encuentra en proceso de actualización para consumir la versión actual de la API.
+La API estará disponible normalmente en:
+
+```text
+http://localhost:8080
+```
 
 ---
 
-## 🚧 Estado actual
+## ✅ Estado actual
 
-### Implementado
+### Seguridad
 
-- ✅ Seguridad con JWT.
-- ✅ Usuarios y roles.
-- ✅ Perfil de usuario.
+- ✅ Login.
+- ✅ JWT.
+- ✅ BCrypt.
+- ✅ Autorización por roles.
+- ✅ Manejo 401 / 403.
+- ✅ Perfil del usuario.
+- ✅ Cambio de contraseña.
+- ✅ Activación y desactivación de usuarios.
+
+### Catálogos y maestros
+
+- ✅ Usuarios.
+- ✅ Roles.
 - ✅ Categorías.
 - ✅ Marcas.
 - ✅ Presentaciones.
 - ✅ Tarifas de IVA.
 - ✅ Productos.
-- ✅ Existencias.
+- ✅ Clientes.
+
+### Inventario
+
 - ✅ Entradas de inventario.
+- ✅ Detalle de entradas.
+- ✅ Existencias.
+- ✅ Stock calculado.
+- ✅ Lotes.
 - ✅ Control de vencimientos.
-- ✅ Movimientos de inventario.
-- ✅ Ajustes de inventario.
-- ✅ Pruebas unitarias con JUnit y Mockito.
+- ✅ Próximos a vencer.
+- ✅ Movimientos.
+- ✅ Ajustes.
+- ✅ FEFO.
+- ✅ FIFO.
 
-### En desarrollo
+### Ventas
 
-- 🚧 Gestión de clientes.
-- 🚧 Integración del frontend Angular con la versión actual del backend.
+- ✅ Registro de venta.
+- ✅ Cliente opcional.
+- ✅ Vendedor desde JWT.
+- ✅ Precio final con IVA incluido.
+- ✅ Snapshot histórico de IVA y precio.
+- ✅ Consumo automático de inventario.
+- ✅ Historial de ventas.
+- ✅ Detalle de venta.
+- ✅ Anulación.
+- ✅ Reversión de inventario.
+- ✅ Movimiento de anulación.
 
-### Próximos módulos
+### Calidad
 
-- 🔜 Ventas.
-- 🔜 Detalle de ventas.
-- 🔜 Consumo automático de existencias.
-- 🔜 Estrategias FEFO / FIFO.
-- 🔜 Pagos.
-- 🔜 Ventas a crédito / fiado.
-- 🔜 Abonos y cuentas por cobrar.
-- 🔜 Descuadres de inventario.
-- 🔜 Anulación de ventas.
-- 🔜 Dashboard y alertas de vencimiento.
+- ✅ DTO Request / Response.
+- ✅ Bean Validation.
+- ✅ Manejo de reglas de negocio.
+- ✅ Operaciones transaccionales.
+- ✅ JUnit 5.
+- ✅ Mockito.
+- ✅ Integración funcional con Angular.
 
 ---
 
-## 💡 Evoluciones contempladas
+## 🗺️ Alcance de esta versión
 
-DStore está siendo diseñado para permitir futuras funcionalidades como:
-
-### Venta sin stock
-
-El sistema podrá configurarse para permitir una venta aunque la existencia disponible sea insuficiente.
-
-En ese caso:
+Esta versión se concentra en completar el flujo principal de:
 
 ```text
-Venta solicitada: 5
-Stock disponible: 2
-
-Se consumen: 2
-Faltante: 3
-
-→ Se genera un descuadre de inventario pendiente
+Seguridad
+Productos
+Inventario
+Clientes
+Ventas
 ```
 
-Las existencias nunca serán negativas.
+No forman parte del alcance actual:
 
-### Ventas fiadas
-
-Las ventas normales podrán realizarse sin identificar cliente.
-
-Para ventas a crédito:
-
-```text
-Cliente → obligatorio
-```
-
-El sistema podrá administrar:
-
-- Deudas por cliente.
-- Saldo pendiente.
+- Apertura y cierre de caja.
+- Balance de caja.
+- Medios de pago configurables.
+- Proveedores.
+- Compras a proveedores.
+- Crédito / ventas fiadas.
 - Abonos.
-- Historial de pagos.
 - Cuentas por cobrar.
+- Reportería avanzada.
+
+Estas funcionalidades quedan como posibles evoluciones posteriores y no son necesarias para completar el flujo actual de ventas e inventario.
 
 ---
 
-## 🎯 Objetivo del proyecto
+## 🚀 Posibles mejoras futuras
 
-DStore busca representar una aplicación empresarial pequeña pero realista, aplicando conceptos como:
+- Dashboard con indicadores.
+- Reportes de ventas e inventario.
+- Paginación y filtros avanzados.
+- Notificaciones de vencimiento.
+- Refresh Token.
+- Auditoría adicional.
+- Caja y medios de pago.
+- Proveedores y compras.
+- Ventas a crédito.
+- Cuentas por cobrar.
+- Registro formal de descuadres de inventario.
+- Mayor cobertura de pruebas automatizadas.
+- Docker.
+- CI/CD.
 
-- Diseño de APIs REST.
-- Seguridad con JWT.
-- Arquitectura en capas.
-- Validaciones.
+---
+
+## 🧠 Decisiones de diseño destacadas
+
+### ¿Por qué `Producto` no almacena stock?
+
+Porque un producto puede tener múltiples existencias, lotes y vencimientos. El stock se deriva de `ExistenciaProducto`.
+
+### ¿Por qué FEFO y FIFO?
+
+Los productos perecederos deben consumir primero lo que vence antes. Los productos sin vencimiento consumen primero lo que ingresó antes.
+
+### ¿Por qué `DetalleVenta` guarda precio e IVA?
+
+Porque una venta debe conservar las condiciones históricas aplicadas aunque después cambie el producto o su tarifa.
+
+### ¿Por qué la anulación genera otro movimiento?
+
+Porque los movimientos son trazabilidad histórica. Anular no significa borrar lo sucedido, sino registrar la operación inversa.
+
+### ¿Por qué el vendedor no viene en `VentaRequest`?
+
+Porque el backend lo obtiene del usuario autenticado mediante JWT, evitando que el cliente pueda atribuir una venta a otro usuario.
+
+---
+
+## 🎯 Objetivo de aprendizaje
+
+DStore también forma parte de un proyecto personal orientado al fortalecimiento de habilidades Full Stack.
+
+El backend permite aplicar y demostrar conocimientos de:
+
+- Java 21.
+- Spring Boot.
+- Spring Security.
+- JWT.
+- JPA / Hibernate.
+- SQL y modelado relacional.
+- APIs REST.
+- DTOs.
+- Bean Validation.
 - Manejo de excepciones.
 - Transacciones.
-- Modelado relacional.
-- Gestión de inventario.
+- Reglas de negocio.
+- Inventario.
+- FEFO / FIFO.
 - Trazabilidad.
-- Pruebas unitarias.
-- Integración Angular + Spring Boot.
-
-El proyecto evoluciona incrementalmente buscando mantener código comprensible, buenas prácticas y reglas de negocio cercanas a escenarios reales.
+- JUnit 5.
+- Mockito.
+- Integración con Angular.
 
 ---
 
@@ -547,4 +921,4 @@ El proyecto evoluciona incrementalmente buscando mantener código comprensible, 
 
 **Mauricio Alarcón**
 
-Proyecto personal orientado al fortalecimiento de habilidades en desarrollo Full Stack con Java, Spring Boot y Angular.
+Proyecto personal orientado al fortalecimiento de habilidades en desarrollo Full Stack con **Java, Spring Boot y Angular**.

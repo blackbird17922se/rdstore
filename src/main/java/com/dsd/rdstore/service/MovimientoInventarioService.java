@@ -10,8 +10,8 @@ import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.MovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.MovimientoInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
@@ -40,9 +40,9 @@ public class MovimientoInventarioService {
 
     public MovimientoInventario registrarMovimiento(
             ExistenciaProducto existencia,
-            TipoMovimientoInventario tipo,
+            EnumTipoMovimientoInventario tipo,
             Long cantidad,
-            TipoOrigenInventario tipoOrigen,
+            EnumTipoOrigenInventario tipoOrigen,
             Long idOrigen,
             String observacion) {
 
@@ -98,7 +98,7 @@ System.out.println("Hora Java: " + LocalDateTime.now());
 
     public List<MovimientoInventarioResponseDTO>
             listarPorOrigen(
-                    TipoOrigenInventario tipoOrigen,
+                    EnumTipoOrigenInventario tipoOrigen,
                     Long idOrigen) {
 
         return movimientoInventarioRepository
@@ -112,7 +112,7 @@ System.out.println("Hora Java: " + LocalDateTime.now());
 
 
     private void validarCantidadMovimiento(
-            TipoMovimientoInventario tipo,
+            EnumTipoMovimientoInventario tipo,
             Long cantidad) {
 
         if (cantidad == null || cantidad == 0) {
@@ -121,8 +121,8 @@ System.out.println("Hora Java: " + LocalDateTime.now());
             );
         }
 
-        if ((tipo == TipoMovimientoInventario.ENTRADA
-                || tipo == TipoMovimientoInventario.AJUSTE_ENTRADA)
+        if ((tipo == EnumTipoMovimientoInventario.ENTRADA
+                || tipo == EnumTipoMovimientoInventario.AJUSTE_ENTRADA)
                 && cantidad < 0) {
 
             throw new BusinessRuleException(
@@ -130,8 +130,8 @@ System.out.println("Hora Java: " + LocalDateTime.now());
             );
         }
 
-        if ((tipo == TipoMovimientoInventario.VENTA
-                || tipo == TipoMovimientoInventario.AJUSTE_SALIDA)
+        if ((tipo == EnumTipoMovimientoInventario.VENTA
+                || tipo == EnumTipoMovimientoInventario.AJUSTE_SALIDA)
                 && cantidad > 0) {
 
             throw new BusinessRuleException(
@@ -139,7 +139,6 @@ System.out.println("Hora Java: " + LocalDateTime.now());
             );
         }
     }
-
 
     private void validarExistencia(Long id) {
 
@@ -195,4 +194,5 @@ System.out.println("Hora Java: " + LocalDateTime.now());
                 movimiento.getObservacion()
         );
     }
+
 }

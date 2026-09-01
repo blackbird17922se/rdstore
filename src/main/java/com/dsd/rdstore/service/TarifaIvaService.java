@@ -12,7 +12,7 @@ import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.DuplicateResourceException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.TarifaIva;
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 import com.dsd.rdstore.repository.TarifaIvaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -184,10 +184,10 @@ public class TarifaIvaService {
 
 
     private void validarConfiguracion(
-            TipoIva tipo,
+            EnumTipoIva tipo,
             BigDecimal porcentaje) {
 
-        if (tipo == TipoIva.GRAVADO
+        if (tipo == EnumTipoIva.GRAVADO
                 && porcentaje.compareTo(BigDecimal.ZERO) <= 0) {
 
             throw new BusinessRuleException(
@@ -196,8 +196,8 @@ public class TarifaIvaService {
             );
         }
 
-        if ((tipo == TipoIva.EXENTO
-                || tipo == TipoIva.EXCLUIDO)
+        if ((tipo == EnumTipoIva.EXENTO
+                || tipo == EnumTipoIva.EXCLUIDO)
                 && porcentaje.compareTo(BigDecimal.ZERO) != 0) {
 
             throw new BusinessRuleException(

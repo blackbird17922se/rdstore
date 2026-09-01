@@ -2,8 +2,8 @@ package com.dsd.rdstore.model;
 
 import java.time.LocalDateTime;
 
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,7 +48,7 @@ public class MovimientoInventario {
         nullable = false,
         length = 30
     )
-    private TipoMovimientoInventario tipo;
+    private EnumTipoMovimientoInventario tipo;
 
     @Column(nullable = false)
     private Long cantidad;
@@ -64,7 +64,7 @@ public class MovimientoInventario {
         name = "tipo_origen",
         length = 30
     )
-    private TipoOrigenInventario tipoOrigen;
+    private EnumTipoOrigenInventario tipoOrigen;
 
     @Column(name = "id_origen")
     private Long idOrigen;

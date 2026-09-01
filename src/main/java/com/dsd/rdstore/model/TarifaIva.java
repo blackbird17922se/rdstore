@@ -2,7 +2,7 @@ package com.dsd.rdstore.model;
 
 import java.math.BigDecimal;
 
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class TarifaIva {
         nullable = false,
         length = 20
     )
-    private TipoIva tipo;
+    private EnumTipoIva tipo;
 
     @Column(
         nullable = false,

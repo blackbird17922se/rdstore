@@ -1,6 +1,6 @@
 package com.dsd.rdstore.dto.ajusteInventario;
 
-import com.dsd.rdstore.model.enums.TipoAjusteInventario;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ public record AjusteInventarioRequestDTO(
         Long idExistencia,
 
         @NotNull(message = "El tipo de ajuste es obligatorio")
-        TipoAjusteInventario tipo,
+        EnumTipoAjusteInventario tipo,
 
         @NotNull(message = "La cantidad es obligatoria")
         @Positive(message = "La cantidad debe ser mayor a cero")

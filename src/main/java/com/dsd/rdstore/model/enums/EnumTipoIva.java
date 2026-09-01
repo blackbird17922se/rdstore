@@ -1,6 +1,6 @@
 package com.dsd.rdstore.model.enums;
 
-public enum TipoIva {
+public enum EnumTipoIva {
 
     GRAVADO,
     EXENTO,

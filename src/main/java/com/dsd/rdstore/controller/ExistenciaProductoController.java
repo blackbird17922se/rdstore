@@ -22,6 +22,15 @@ public class ExistenciaProductoController {
     private final ExistenciaProductoService existenciaProductoService;
 
 
+    @GetMapping
+    public ResponseEntity<List<ExistenciaProductoResponseDTO>> 
+        listarExistencias() {
+                return ResponseEntity.ok(
+                        existenciaProductoService.listarExistencias());
+    }
+    
+
+
     @GetMapping("/{id}")
     public ResponseEntity<ExistenciaProductoResponseDTO>
             obtenerExistencia(@PathVariable Long id) {

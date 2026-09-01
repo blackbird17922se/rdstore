@@ -13,8 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.model.ExistenciaProducto;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.MovimientoInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
@@ -45,9 +45,9 @@ class MovimientoInventarioServiceTest {
                 BusinessRuleException.class,
                 () -> movimientoInventarioService.registrarMovimiento(
                         existencia,
-                        TipoMovimientoInventario.AJUSTE_SALIDA,
+                        EnumTipoMovimientoInventario.AJUSTE_SALIDA,
                         3L,
-                        TipoOrigenInventario.AJUSTE_INVENTARIO,
+                        EnumTipoOrigenInventario.AJUSTE_INVENTARIO,
                         1L,
                         "Producto dañado"
                 )

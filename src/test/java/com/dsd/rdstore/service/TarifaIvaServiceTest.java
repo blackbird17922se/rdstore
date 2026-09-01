@@ -21,7 +21,7 @@ import com.dsd.rdstore.dto.tarifaiva.TarifaIvaRequestDTO;
 import com.dsd.rdstore.dto.tarifaiva.TarifaIvaResponseDTO;
 import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.model.TarifaIva;
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 import com.dsd.rdstore.repository.TarifaIvaRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +38,7 @@ public class TarifaIvaServiceTest {
 
         TarifaIvaRequestDTO dto = new TarifaIvaRequestDTO(
                 "IVA GENERAL 19%",
-                TipoIva.GRAVADO,
+                EnumTipoIva.GRAVADO,
                 new BigDecimal("19.00"));
 
         when(tarifaIvaRepository
@@ -71,7 +71,7 @@ public class TarifaIvaServiceTest {
                 respuesta.porcentaje());
 
         assertEquals(
-                TipoIva.GRAVADO,
+                EnumTipoIva.GRAVADO,
                 respuesta.tipo());
 
         assertTrue(respuesta.activo());
@@ -82,7 +82,7 @@ public class TarifaIvaServiceTest {
 
         TarifaIvaRequestDTO dto = new TarifaIvaRequestDTO(
                 "EXENTO INCORRECTO",
-                TipoIva.EXENTO,
+                EnumTipoIva.EXENTO,
                 new BigDecimal("19.00"));
 
         BusinessRuleException exception = assertThrows(

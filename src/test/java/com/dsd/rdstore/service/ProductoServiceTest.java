@@ -22,7 +22,7 @@ import com.dsd.rdstore.model.Marca;
 import com.dsd.rdstore.model.Presentacion;
 import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.model.TarifaIva;
-import com.dsd.rdstore.model.enums.TipoIva;
+import com.dsd.rdstore.model.enums.EnumTipoIva;
 import com.dsd.rdstore.repository.CategoriaRepository;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.MarcaRepository;
@@ -79,7 +79,7 @@ public class ProductoServiceTest {
         tarifaIva.setId(1L);
         tarifaIva.setNombre("PruebaTarifa");
         tarifaIva.setPorcentaje(BigDecimal.valueOf(10));
-        tarifaIva.setTipo(TipoIva.GRAVADO);
+        tarifaIva.setTipo(EnumTipoIva.GRAVADO);
         tarifaIva.setActivo(true);
 
         when(productoRepository.existsByCodigoBarras(dto.codigoBarras()))

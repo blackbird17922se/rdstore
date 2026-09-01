@@ -2,6 +2,7 @@ package com.dsd.rdstore.service;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +11,19 @@ import com.dsd.rdstore.dto.usuario.UsuarioPasswordDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioRequestDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioResponseDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioUpdateDTO;
+import com.dsd.rdstore.dto.usuario.perfil.CambiarContrasenaDTO;
+import com.dsd.rdstore.dto.usuario.perfil.PerfilUsuarioResponseDTO;
+import com.dsd.rdstore.dto.usuario.perfil.PerfilUsuarioUpdateDTO;
 import com.dsd.rdstore.exception.DuplicateResourceException;
 import com.dsd.rdstore.exception.InvalidCredentialsException;
+import com.dsd.rdstore.exception.NegocioExcepcion;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.Rol;
 import com.dsd.rdstore.model.Usuario;
 import com.dsd.rdstore.repository.RolRepository;
 import com.dsd.rdstore.repository.UsuarioRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -145,6 +151,89 @@ public class UsuarioService {
         return usuarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario", id)); 
 
+    }
+
+    public PerfilUsuarioResponseDTO obtenerPerfil(Authentication authentication) {
+        String nombreUsuario = authentication.getName();
+
+        Usuario usuario = validarUsuarioActivo(nombreUsuario);
+
+        return new PerfilUsuarioResponseDTO(
+            usuario.getId(),
+            usuario.getNombre(),
+            usuario.getApellido(),
+            usuario.getNombreUsuario(),
+            usuario.getRol().getNombre()
+        );
+    }
+
+    
+    @Transactional
+    public PerfilUsuarioResponseDTO actualizarPerfil(
+        PerfilUsuarioUpdateDTO request,
+        Authentication authentication
+    ) {
+        String nombreUsuario = authentication.getName();
+
+        Usuario usuario = validarUsuarioActivo(nombreUsuario);
+
+        usuario.setNombre(request.nombre().trim());
+        usuario.setApellido(request.apellido().trim());
+
+        usuarioRepository.save(usuario);
+
+        return new PerfilUsuarioResponseDTO(
+            usuario.getId(),
+            usuario.getNombre(),
+            usuario.getApellido(),
+            usuario.getNombreUsuario(),
+            usuario.getRol().getNombre()
+        );
+    }
+
+
+    @Transactional
+    public void cambiarContrasena(
+        CambiarContrasenaDTO request,
+        Authentication authentication
+    ) {
+        String nombreUsuario = authentication.getName();
+
+        Usuario usuario = validarUsuarioActivo(nombreUsuario);
+
+        boolean coincide = passwordEncoder.matches(
+            request.contrasenaActual(),
+            usuario.getContrasena()
+        );
+
+        if (!coincide) {
+            throw new NegocioExcepcion(
+                "La contraseña actual no es correcta"
+            );
+        }
+
+        if (passwordEncoder.matches(
+            request.nuevaContrasena(),
+            usuario.getContrasena()
+        )) {
+            throw new NegocioExcepcion(
+                "La nueva contraseña debe ser diferente a la actual"
+            );
+        }
+
+        usuario.setContrasena(
+            passwordEncoder.encode(
+                request.nuevaContrasena()
+            )
+        );
+
+        usuarioRepository.save(usuario);
+    }
+
+
+    private Usuario validarUsuarioActivo(String nombreUsuario){
+        return usuarioRepository.findByNombreUsuarioAndActivoTrue(nombreUsuario)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario", nombreUsuario)); 
     }
 
 }

@@ -20,8 +20,8 @@ import com.dsd.rdstore.model.Producto;
 import com.dsd.rdstore.repository.DetalleEntradaInventarioRepository;
 import com.dsd.rdstore.repository.EntradaInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 
 import lombok.RequiredArgsConstructor;
 
@@ -107,9 +107,9 @@ public class EntradaInventarioService {
 
             movimientoInventarioService.registrarMovimiento(
                     existencia,
-                    TipoMovimientoInventario.ENTRADA,
+                    EnumTipoMovimientoInventario.ENTRADA,
                     detalleDto.cantidad(),
-                    TipoOrigenInventario.ENTRADA_INVENTARIO,
+                    EnumTipoOrigenInventario.ENTRADA_INVENTARIO,
                     entradaGuardada.getId(),
                     "Entrada de inventario"
             );

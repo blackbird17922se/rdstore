@@ -1,6 +1,6 @@
 package com.dsd.rdstore.model.enums;
 
-public enum TipoOrigenInventario {
+public enum EnumTipoOrigenInventario {
 
     ENTRADA_INVENTARIO,
     VENTA,

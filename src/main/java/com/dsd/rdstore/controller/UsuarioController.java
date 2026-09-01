@@ -4,19 +4,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dsd.rdstore.dto.usuario.UsuarioEstadoDTO;
-import com.dsd.rdstore.dto.usuario.UsuarioPasswordDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioRequestDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioResponseDTO;
 import com.dsd.rdstore.dto.usuario.UsuarioUpdateDTO;
+import com.dsd.rdstore.dto.usuario.perfil.CambiarContrasenaDTO;
+import com.dsd.rdstore.dto.usuario.perfil.PerfilUsuarioResponseDTO;
+import com.dsd.rdstore.dto.usuario.perfil.PerfilUsuarioUpdateDTO;
 import com.dsd.rdstore.service.UsuarioService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,14 +75,38 @@ public class UsuarioController {
 
     }
 
-    @PatchMapping("/{id}/contrasena")
-    public ResponseEntity<UsuarioResponseDTO> cambiarContrasenaUsuario(
-            @PathVariable Long id, @Valid @RequestBody UsuarioPasswordDTO dto) {
+    @PatchMapping("/perfil/contrasena")
+    public ResponseEntity<Map<String, String>> cambiarContrasena(
+        @Valid @RequestBody CambiarContrasenaDTO request,
+        Authentication authentication
+    ) {
+        usuarioService.cambiarContrasena(request, authentication);
 
-        UsuarioResponseDTO usuarioActualizado = usuarioService.cambiarContrasenaUsuario(id, dto);
+        return ResponseEntity.ok(
+            Map.of(
+                "mensaje",
+                "Contraseña actualizada correctamente"
+            )
+        );
+    }
 
-        return ResponseEntity.ok(usuarioActualizado);
+    @GetMapping("/perfil")
+    public ResponseEntity<PerfilUsuarioResponseDTO> obtenerPerfil(
+        Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+            usuarioService.obtenerPerfil(authentication)
+        );
+    }
 
+    @PutMapping("/perfil")
+    public ResponseEntity<PerfilUsuarioResponseDTO> actualizarPerfil(
+        @Valid @RequestBody PerfilUsuarioUpdateDTO request,
+        Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+            usuarioService.actualizarPerfil(request, authentication)
+        );
     }
 
 }

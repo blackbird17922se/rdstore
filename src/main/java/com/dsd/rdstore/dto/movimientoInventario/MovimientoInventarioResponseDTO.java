@@ -2,8 +2,8 @@ package com.dsd.rdstore.dto.movimientoInventario;
 
 import java.time.LocalDateTime;
 
-import com.dsd.rdstore.model.enums.TipoMovimientoInventario;
-import com.dsd.rdstore.model.enums.TipoOrigenInventario;
+import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
+import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 
 public record MovimientoInventarioResponseDTO(
 
@@ -14,12 +14,12 @@ public record MovimientoInventarioResponseDTO(
         Long idProducto,
         String nombreProducto,
 
-        TipoMovimientoInventario tipo,
+        EnumTipoMovimientoInventario tipo,
         Long cantidad,
 
         LocalDateTime fechaMovimiento,
 
-        TipoOrigenInventario tipoOrigen,
+        EnumTipoOrigenInventario tipoOrigen,
         Long idOrigen,
 
         String observacion
