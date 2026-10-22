@@ -97,7 +97,7 @@ public class CategoriaServiceTest {
 
 
         assertEquals(
-                "Ya existe una categoría con el nombre: " + nombre,
+                "Ya existe Categoría con el nombre: " + nombre,
                 exception.getMessage());
 
         verify(categoriaRepository)
@@ -303,7 +303,7 @@ public class CategoriaServiceTest {
                 () -> categoriaService.actualizarCategoria(id, dto));
 
         assertEquals(
-                "Ya existe una categoría con el nombre: Tecnología",
+                "Ya existe Categoría con el nombre: Tecnología",
                 exception.getMessage());
 
         verify(categoriaRepository).findById(id);
