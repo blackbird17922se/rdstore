@@ -7,7 +7,7 @@ La API está desarrollada con **Java 21 y Spring Boot** y forma parte de una sol
 DStore busca representar un sistema pequeño pero realista, priorizando reglas de negocio, seguridad, trazabilidad, consistencia de inventario y una arquitectura comprensible.
 
 ---
-
+xp
 ## 🔗 Repositorios
 
 ### Backend
