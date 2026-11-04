@@ -10,6 +10,20 @@ jobs:
     name: Java Tests
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci_password
+          MYSQL_DATABASE: dstore
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pci_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -25,4 +39,8 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run tests
+        env:
+          DB_USERNAME: root
+          DB_PASSWORD: ci_password
+          JWT_SECRET: ci-test-secret-key-for-rdstore-123456789
         run: ./mvnw --batch-mode test
