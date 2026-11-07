@@ -40,6 +40,7 @@ jobs:
 
       - name: Run tests
         env:
+          DB_URL: jdbc:mysql://localhost:3307/dstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
           DB_USERNAME: root
           DB_PASSWORD: ci_password
           JWT_SECRET: ci-test-secret-key-for-rdstore-123456789
