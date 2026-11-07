@@ -1,0 +1,37 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: rdstore-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: dstore
+    ports:
+      - "3308:3306"
+    volumes:
+      - rdstore-mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api:
+    build: .
+    container_name: rdstore-api
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/dstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  rdstore-mysql-data:
