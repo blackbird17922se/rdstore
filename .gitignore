@@ -32,5 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/plan.out
+
 .env
 dstore.sql
