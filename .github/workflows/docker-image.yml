@@ -46,6 +46,14 @@ jobs:
             --environment $ENVIRONMENT_NAME \
             --ingress external \
             --target-port 8080 \
-            --env-vars \
-              SPRING_PROFILES_ACTIVE=azure-demo \
-              JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            --env-vars SPRING_PROFILES_ACTIVE=azure-demo
+
+          az containerapp secret set \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --secrets jwt-secret="${{ secrets.JWT_SECRET }}"
+
+          az containerapp update \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --set-env-vars JWT_SECRET=secretref:jwt-secret
