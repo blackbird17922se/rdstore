@@ -48,12 +48,18 @@ jobs:
             --target-port 8080 \
             --env-vars SPRING_PROFILES_ACTIVE=azure-demo
 
+      - name: Configure Container App secrets
+        run: |
           az containerapp secret set \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP \
-            --secrets jwt-secret="${{ secrets.JWT_SECRET }}"
+            --secrets \
+              jwt-secret="${{ secrets.JWT_SECRET }}" \
+              appinsights-connection-string="${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
 
           az containerapp update \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP \
-            --set-env-vars JWT_SECRET=secretref:jwt-secret
+            --set-env-vars \
+              JWT_SECRET=secretref:jwt-secret \
+              APPLICATIONINSIGHTS_CONNECTION_STRING=secretref:appinsights-connection-string
