@@ -16,6 +16,8 @@ WORKDIR /app
 
 COPY --from=build /app/target/rdstore-0.0.1-SNAPSHOT.jar app.jar
 
+ADD https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.7.9/applicationinsights-agent-3.7.9.jar applicationinsights-agent.jar
+
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-javaagent:/app/applicationinsights-agent.jar", "-jar", "app.jar"]
