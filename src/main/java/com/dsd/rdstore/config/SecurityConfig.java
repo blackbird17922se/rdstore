@@ -165,7 +165,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-            List.of("http://localhost:4200")
+            List.of(
+                "http://localhost:4200",
+                "https://icy-bay-07fd19b0f.5.azurestaticapps.net"
+            )
         );
 
         configuration.setAllowedMethods(
