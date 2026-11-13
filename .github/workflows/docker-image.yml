@@ -45,8 +45,7 @@ jobs:
             --resource-group $RESOURCE_GROUP \
             --environment $ENVIRONMENT_NAME \
             --ingress external \
-            --target-port 8080 \
-            --env-vars SPRING_PROFILES_ACTIVE=azure-demo
+            --target-port 8080
 
       - name: Configure Container App secrets
         run: |
@@ -55,11 +54,17 @@ jobs:
             --resource-group $RESOURCE_GROUP \
             --secrets \
               jwt-secret="${{ secrets.JWT_SECRET }}" \
-              appinsights-connection-string="${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
+              appinsights-connection-string="${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}" \
+              db-url="${{ secrets.DB_URL }}" \
+              db-username="${{ secrets.DB_USERNAME }}" \
+              db-password="${{ secrets.DB_PASSWORD }}"
 
           az containerapp update \
             --name $CONTAINER_APP_NAME \
             --resource-group $RESOURCE_GROUP \
             --set-env-vars \
               JWT_SECRET=secretref:jwt-secret \
-              APPLICATIONINSIGHTS_CONNECTION_STRING=secretref:appinsights-connection-string
+              APPLICATIONINSIGHTS_CONNECTION_STRING=secretref:appinsights-connection-string \
+              DB_URL=secretref:db-url \
+              DB_USERNAME=secretref:db-username \
+              DB_PASSWORD=secretref:db-password
