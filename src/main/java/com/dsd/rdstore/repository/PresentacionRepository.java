@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.dsd.rdstore.model.Presentacion;
 
 public interface PresentacionRepository
-        extends JpaRepository<Presentacion, Long> {
+        extends JpaRepository<Presentacion, Long>, 
+            JpaSpecificationExecutor<Presentacion> {
 
     boolean existsByNombreIgnoreCase(String nombre);
 
