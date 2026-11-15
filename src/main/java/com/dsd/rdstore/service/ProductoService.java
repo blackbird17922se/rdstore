@@ -1,9 +1,16 @@
 package com.dsd.rdstore.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dsd.rdstore.common.pagination.PaginationUtils;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.specification.ProductoSpecification;
 import com.dsd.rdstore.dto.producto.ProductoEstadoDTO;
 import com.dsd.rdstore.dto.producto.ProductoRequestDTO;
 import com.dsd.rdstore.dto.producto.ProductoResponseDTO;
@@ -37,6 +44,10 @@ public class ProductoService {
 
     private static final String RECURSO = "Producto";
 
+    // Solo propiedades conocidas de la entidad; no permitir columnas arbitrarias.
+    private static final Set<String> CAMPOS_ORDEN_PERMITIDOS =
+            Set.of("id", "nombre", "codigoBarras", "precio");
+
 
     public ProductoResponseDTO crearProducto(ProductoRequestDTO dto) {
 
@@ -68,6 +79,37 @@ public class ProductoService {
                 .stream()
                 .map(this::mapResponse)
                 .toList();
+    }
+
+
+    /** Búsqueda para tablas administrativas; no modifica el listado usado en selectores. */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<ProductoResponseDTO> buscarProductos(
+            String texto,
+            Boolean activo,
+            Long idCategoria,
+            Long idMarca,
+            Long idPresentacion,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        Pageable pageable = PaginationUtils.crear(
+                page,
+                size,
+                ordenarPor,
+                direccion,
+                CAMPOS_ORDEN_PERMITIDOS);
+
+        Page<ProductoResponseDTO> resultado = productoRepository
+                .findAll(
+                        ProductoSpecification.filtrar(
+                                texto, activo, idCategoria, idMarca, idPresentacion),
+                        pageable)
+                .map(this::mapResponse);
+
+        return PageResponseDTO.from(resultado);
     }
 
 

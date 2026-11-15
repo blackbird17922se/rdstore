@@ -3,6 +3,7 @@ package com.dsd.rdstore.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.dto.producto.ProductoEstadoDTO;
 import com.dsd.rdstore.dto.producto.ProductoRequestDTO;
 import com.dsd.rdstore.dto.producto.ProductoResponseDTO;
@@ -44,6 +47,30 @@ public class ProductoController {
         return ResponseEntity.ok(
                 productoService.listarProductosActivos()
         );
+    }
+
+
+    /** Listado paginado para la pantalla de administración de Productos. */
+    @GetMapping("/paginados")
+    public ResponseEntity<PageResponseDTO<ProductoResponseDTO>> buscarProductos(
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(required = false) Long idCategoria,
+            @RequestParam(required = false) Long idMarca,
+            @RequestParam(required = false) Long idPresentacion,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nombre") String ordenarPor,
+            @RequestParam(defaultValue = "asc") String direccion) {
+
+        try {
+            return ResponseEntity.ok(productoService.buscarProductos(
+                    texto, activo, idCategoria, idMarca, idPresentacion,
+                    page, size, ordenarPor, direccion));
+        } catch (IllegalArgumentException ex) {
+            // Las validaciones de PaginationUtils deben devolver 400 y no 500.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        }
     }
 
 
