@@ -1,6 +1,8 @@
 package com.dsd.rdstore.controller;
 
 import java.util.List;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,23 @@ import lombok.RequiredArgsConstructor;
 public class PresentacionController {
 
     private final PresentacionService presentacionService;
+
+    @GetMapping("/paginadas")
+    public ResponseEntity<PageResponseDTO<PresentacionResponseDTO>> listarPaginadas(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nombre") String ordenarPor,
+            @RequestParam(defaultValue = "asc") String direccion) {
+        try {
+            return ResponseEntity.ok(presentacionService.buscarPaginadas(
+                    nombre, activo, page, size, ordenarPor, direccion));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
 
 
     @GetMapping
