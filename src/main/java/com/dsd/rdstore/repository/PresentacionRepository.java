@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.dsd.rdstore.model.Presentacion;
 
 public interface PresentacionRepository
-        extends JpaRepository<Presentacion, Long>, 
-            JpaSpecificationExecutor<Presentacion> {
+        extends JpaRepository<Presentacion, Long>, JpaSpecificationExecutor<Presentacion> {
 
     boolean existsByNombreIgnoreCase(String nombre);
 
