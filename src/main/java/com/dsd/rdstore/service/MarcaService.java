@@ -1,9 +1,15 @@
 package com.dsd.rdstore.service;
 
 import java.util.List;
+import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.specification.MarcaSpecification;
 
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
 import com.dsd.rdstore.dto.marca.MarcaEstadoDTO;
 import com.dsd.rdstore.dto.marca.MarcaRequestDTO;
 import com.dsd.rdstore.dto.marca.MarcaResponseDTO;
@@ -21,6 +27,8 @@ public class MarcaService {
     private final MarcaRepository marcaRepository;
 
     private final String RECURSO = "Marca";
+    private static final Set<String> CAMPOS_ORDEN = Set.of("id", "nombre");
+
 
 
     public MarcaResponseDTO crearMarca(MarcaRequestDTO dto){
@@ -119,4 +127,24 @@ public class MarcaService {
                 marca.getActivo());
     }
 
+    @Transactional(readOnly = true)
+    public PageResponseDTO<MarcaResponseDTO> buscarPaginadas(
+            String nombre,
+            Boolean activo,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        return SpecificationPageUtils.buscar(
+                marcaRepository,
+                MarcaSpecification.filtrar(nombre, activo),
+                this::mapResponse,
+                page,
+                size,
+                ordenarPor,
+                direccion,
+                CAMPOS_ORDEN
+        );
+    }
 }

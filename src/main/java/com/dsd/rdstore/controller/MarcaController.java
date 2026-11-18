@@ -1,11 +1,17 @@
 package com.dsd.rdstore.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.dsd.rdstore.dto.marca.MarcaEstadoDTO;
 import com.dsd.rdstore.dto.marca.MarcaRequestDTO;
 import com.dsd.rdstore.dto.marca.MarcaResponseDTO;
+import com.dsd.rdstore.dto.marca.MarcaResponseDTO;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+
 import com.dsd.rdstore.service.MarcaService;
 
 import jakarta.validation.Valid;
@@ -29,6 +35,22 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class MarcaController {
 
     private final MarcaService marcaService;
+
+    @GetMapping("/paginadas")
+    public ResponseEntity<PageResponseDTO<MarcaResponseDTO>> listarPaginadas(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nombre") String ordenarPor,
+            @RequestParam(defaultValue = "asc") String direccion) {
+        try {
+            return ResponseEntity.ok(marcaService.buscarPaginadas(
+                    nombre, activo, page, size, ordenarPor, direccion));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
 
 
     @GetMapping()
