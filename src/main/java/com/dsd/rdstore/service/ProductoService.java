@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dsd.rdstore.common.pagination.PaginationUtils;
+import com.dsd.rdstore.common.util.PaginationUtils;
 import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.specification.ProductoSpecification;
 import com.dsd.rdstore.dto.producto.ProductoEstadoDTO;

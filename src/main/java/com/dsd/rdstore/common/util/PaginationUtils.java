@@ -1,4 +1,4 @@
-package com.dsd.rdstore.common.pagination;
+package com.dsd.rdstore.common.util;
 
 import java.util.Set;
 

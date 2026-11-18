@@ -2,10 +2,9 @@ package com.dsd.rdstore.service;
 
 import java.util.List;
 import java.util.Set;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-import com.dsd.rdstore.common.pagination.PaginationUtils;
+
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
 import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.specification.PresentacionSpecification;
 
@@ -28,19 +27,6 @@ public class PresentacionService {
     private final PresentacionRepository presentacionRepository;
 
     private static final Set<String> CAMPOS_ORDEN = Set.of("id", "nombre");
-
-    @Transactional(readOnly = true)
-    public PageResponseDTO<PresentacionResponseDTO> buscarPaginadas(
-            String nombre, Boolean activo, int page, int size, String ordenarPor, String direccion) {
-
-        Pageable pageable = PaginationUtils.crear(
-                page, size, ordenarPor, direccion, CAMPOS_ORDEN);
-        Page<PresentacionResponseDTO> resultados = presentacionRepository
-                .findAll(PresentacionSpecification.filtrar(nombre, activo), pageable)
-                .map(this::mapResponse);
-        return PageResponseDTO.from(resultados);
-    }
-
 
 
     public PresentacionResponseDTO crearPresentacion(
@@ -157,6 +143,28 @@ public class PresentacionService {
             presentacion.getId(),
             presentacion.getNombre(),
             presentacion.getActivo()
+        );
+    }
+
+
+    @Transactional(readOnly = true)
+    public PageResponseDTO<PresentacionResponseDTO> buscarPaginadas(
+            String nombre,
+            Boolean activo,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        return SpecificationPageUtils.buscar(
+                presentacionRepository,
+                PresentacionSpecification.filtrar(nombre, activo),
+                this::mapResponse,
+                page,
+                size,
+                ordenarPor,
+                direccion,
+                CAMPOS_ORDEN
         );
     }
 }
