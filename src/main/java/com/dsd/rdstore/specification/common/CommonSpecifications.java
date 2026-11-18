@@ -1,22 +1,10 @@
 package com.dsd.rdstore.specification.common;
 
 import java.util.Locale;
-import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.dsd.rdstore.common.util.PaginationUtils;
-import com.dsd.rdstore.dto.common.PageResponseDTO;
-import com.dsd.rdstore.dto.presentacion.PresentacionResponseDTO;
-import com.dsd.rdstore.specification.PresentacionSpecification;
 
 public final class CommonSpecifications {
-
-    private static final Set<String> CAMPOS_ORDEN = Set.of("id", "nombre");
-
 
     private CommonSpecifications() {}
 
