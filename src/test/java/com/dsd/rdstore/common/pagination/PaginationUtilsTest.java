@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.dsd.rdstore.common.util.PaginationUtils;
+
 class PaginationUtilsTest {
 
     private static final Set<String> CAMPOS = Set.of("id", "nombre", "precio");

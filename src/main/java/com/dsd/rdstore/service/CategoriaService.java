@@ -1,9 +1,15 @@
 package com.dsd.rdstore.service;
 
 import java.util.List;
+import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.specification.CategoriaSpecification;
 
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
 import com.dsd.rdstore.dto.categoria.CategoriaEstadoDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaRequestDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaResponseDTO;
@@ -21,6 +27,8 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
 
     private final String RECURSO = "Categoría";
+
+    private static final Set<String> CAMPOS_ORDEN = Set.of("id", "nombre");
 
 
     public CategoriaResponseDTO crearCategorias(CategoriaRequestDTO dto) {
@@ -96,16 +104,6 @@ public class CategoriaService {
         return mapearResponse(guardada);
     }
 
-
-    // private void validarCategoriaSinProductos(Long id) {
-
-    //     if (productoRepository.existsByCategoriaId(id)) {
-    //         throw new BusinessRuleException(
-    //                 "No se puede eliminar la categoría porque tiene productos asociados"
-    //         );
-    //     }
-    // }
-
     public List<CategoriaResponseDTO> listarActivas() {
 
         return categoriaRepository
@@ -121,6 +119,28 @@ public class CategoriaService {
             categoria.getId(),
             categoria.getNombre(),
             categoria.getActivo());
+    }
+
+
+    @Transactional(readOnly = true)
+    public PageResponseDTO<CategoriaResponseDTO> buscarPaginadas(
+            String nombre,
+            Boolean activo,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        return SpecificationPageUtils.buscar(
+                categoriaRepository,
+                CategoriaSpecification.filtrar(nombre, activo),
+                this::mapearResponse,
+                page,
+                size,
+                ordenarPor,
+                direccion,
+                CAMPOS_ORDEN
+        );
     }
 
 }

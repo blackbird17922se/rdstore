@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.dsd.rdstore.dto.categoria.CategoriaEstadoDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaRequestDTO;
 import com.dsd.rdstore.dto.categoria.CategoriaResponseDTO;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.service.CategoriaService;
 
 import jakarta.validation.Valid;
@@ -27,6 +30,22 @@ import lombok.RequiredArgsConstructor;
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
+
+    @GetMapping("/paginadas")
+    public ResponseEntity<PageResponseDTO<CategoriaResponseDTO>> listarPaginadas(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nombre") String ordenarPor,
+            @RequestParam(defaultValue = "asc") String direccion) {
+        try {
+            return ResponseEntity.ok(categoriaService.buscarPaginadas(
+                    nombre, activo, page, size, ordenarPor, direccion));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
     
     @PostMapping
     public ResponseEntity<CategoriaResponseDTO> crearCategorias(
