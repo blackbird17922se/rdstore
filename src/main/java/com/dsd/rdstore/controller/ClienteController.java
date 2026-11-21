@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dsd.rdstore.dto.cliente.ClienteResponseDTO;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.dto.cliente.ClienteEstadoDTO;
 import com.dsd.rdstore.dto.cliente.ClienteRequestDTO;
 import com.dsd.rdstore.service.ClienteService;
@@ -32,6 +34,24 @@ public class ClienteController {
     public ResponseEntity<List<ClienteResponseDTO>> listarClientes(){
         return ResponseEntity.ok(clienteService.listarClientes());
     }
+
+    @GetMapping("/paginados")
+    public ResponseEntity<PageResponseDTO<ClienteResponseDTO>> listarClientesPaginados(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String documento,
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nombresApellidos") String ordenarPor,
+            @RequestParam(defaultValue = "asc") String direccion) {
+
+        return ResponseEntity.ok(
+            clienteService.listarClientesPaginados(
+                nombre, documento, activo, page, size, ordenarPor, direccion
+            )
+        );
+    }
+
 
     @GetMapping("/activas")
     public ResponseEntity<List<ClienteResponseDTO>> listarClientesActivos() {

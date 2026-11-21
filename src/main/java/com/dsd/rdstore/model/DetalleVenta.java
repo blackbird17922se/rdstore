@@ -27,6 +27,16 @@ public class DetalleVenta {
     
     private Long cantidad;
 
+    /** Unidades realmente descontadas de las existencias al registrar esta venta. */
+    // Null en ventas históricas anteriores a esta funcionalidad: dato no reconstruido.
+    @Column(name = "cantidad_descontada")
+    private Long cantidadDescontada;
+
+    /** Unidades vendidas sin cobertura en las existencias registradas en DStore. */
+    // No implica por sí mismo que el producto esté pendiente de entrega.
+    @Column(name = "cantidad_sin_stock")
+    private Long cantidadSinStock;
+
     @Column(name = "precio_unitario")
     private BigDecimal precioUnitario;
 
@@ -41,7 +51,7 @@ public class DetalleVenta {
 
     private BigDecimal total;
 
-    @Column(name = "valor_iva", precision = 5, scale = 2, nullable = false)
+    @Column(name = "valor_iva", precision = 38, scale = 2, nullable = false)
     private BigDecimal valorIva;
 
     @ManyToOne

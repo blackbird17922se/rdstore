@@ -28,7 +28,7 @@ public class Cliente {
     @Column(name = "tipo_documento", length = 20)
     private EnumTipoDocumento tipoDocumento;
 
-    @Column(name = "numero_documento", unique = true, length = 30)
+    @Column(name = "numero_documento", length = 30)
     private String numeroDocumento ;
 
     @Column(name = "nombres_apellidos", unique = true, nullable = false, length = 100)

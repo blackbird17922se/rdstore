@@ -2,8 +2,10 @@ package com.dsd.rdstore.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +15,15 @@ import com.dsd.rdstore.model.ExistenciaProducto;
 import jakarta.persistence.LockModeType;
 
 public interface ExistenciaProductoRepository
-        extends JpaRepository<ExistenciaProducto, Long> {
+        extends JpaRepository<ExistenciaProducto, Long>, JpaSpecificationExecutor<ExistenciaProducto> {
+
+    /**
+     * SELECT ... FOR UPDATE (en MySQL/InnoDB) para ajustes manuales.
+     * Se debe llamar desde un método @Transactional.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM ExistenciaProducto e WHERE e.id = :id")
+    Optional<ExistenciaProducto> obtenerPorIdConBloqueo(@Param("id") Long id);
 
     /** Todas las existencias */
     List<ExistenciaProducto> findAllByOrderByFechaIngresoDesc();
@@ -54,6 +64,8 @@ public interface ExistenciaProductoRepository
             @Param("idProducto") Long idProducto);
 
     /** Repository para FIFO: Para productos que no vencen */
+    // Igual que FEFO, protege los lotes elegidos ante descuentos concurrentes.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
                 SELECT e
                 FROM ExistenciaProducto e

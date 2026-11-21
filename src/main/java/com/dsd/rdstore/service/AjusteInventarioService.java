@@ -1,11 +1,16 @@
 package com.dsd.rdstore.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
+import com.dsd.rdstore.specification.AjusteInventarioSpecification;
 import com.dsd.rdstore.dto.ajusteInventario.AjusteInventarioRequestDTO;
 import com.dsd.rdstore.dto.ajusteInventario.AjusteInventarioResponseDTO;
 import com.dsd.rdstore.exception.BusinessRuleException;
@@ -40,6 +45,11 @@ public class AjusteInventarioService {
 
     private static final String RECURSO = "Ajuste de inventario";
 
+    // Campos autorizados para ordenar; nunca se acepta una propiedad arbitraria.
+    private static final Set<String> CAMPOS_ORDEN = Set.of(
+            "id", "fechaAjuste", "existencia.producto.nombre", "tipo", "cantidad",
+            "existencia.id", "usuario.nombreUsuario", "motivo");
+
     private final AjusteInventarioRepository ajusteInventarioRepository;
     private final ExistenciaProductoRepository existenciaProductoRepository;
     private final UsuarioRepository usuarioRepository;
@@ -51,11 +61,17 @@ public class AjusteInventarioService {
             AjusteInventarioRequestDTO dto,
             String nombreUsuario) {
 
-        ExistenciaProducto existencia =
-                obtenerExistenciaPorId(dto.idExistencia());
+        // Las anotaciones del DTO validan solicitudes HTTP; el servicio también
+        // valida para proteger llamadas internas que no pasan por el Controller.
+        validarDatosAjuste(dto);
 
         Usuario usuario =
                 obtenerUsuario(nombreUsuario);
+
+        // Bloquea esta EXISTENCIA (lote) hasta finalizar la transacción.
+        // La cantidad se comprueba nuevamente con el valor actualizado.
+        ExistenciaProducto existencia =
+                obtenerExistenciaPorIdParaAjuste(dto.idExistencia());
 
         aplicarAjuste(
                 existencia,
@@ -87,6 +103,23 @@ public class AjusteInventarioService {
         return mapResponse(ajusteGuardado);
     }
 
+
+    /** Listado histórico paginado. Solo lectura; no cambia el registro de ajustes. */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<AjusteInventarioResponseDTO> listarPaginados(
+            String texto, EnumTipoAjusteInventario tipo, Long idProducto,
+            Long idExistencia, LocalDate fechaDesde, LocalDate fechaHasta,
+            int page, int size, String ordenarPor, String direccion) {
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+            throw new BusinessRuleException("La fecha inicial no puede superar la fecha final");
+        }
+        return SpecificationPageUtils.buscar(
+                ajusteInventarioRepository,
+                AjusteInventarioSpecification.filtrar(
+                        texto, tipo, idProducto, idExistencia, fechaDesde, fechaHasta),
+                this::mapResponse,
+                page, size, ordenarPor, direccion, CAMPOS_ORDEN);
+    }
 
     public List<AjusteInventarioResponseDTO> listarAjustes() {
 
@@ -142,6 +175,36 @@ public class AjusteInventarioService {
     }
 
 
+    /**
+     * Protección adicional para invocaciones internas del servicio.
+     * En solicitudes HTTP, estas reglas también están declaradas en el DTO.
+     */
+    private void validarDatosAjuste(AjusteInventarioRequestDTO dto) {
+
+        if (dto == null) {
+            throw new BusinessRuleException("Los datos del ajuste son obligatorios");
+        }
+        if (dto.idExistencia() == null || dto.idExistencia() <= 0) {
+            throw new BusinessRuleException("La existencia es obligatoria y debe ser válida");
+        }
+        if (dto.tipo() == null) {
+            throw new BusinessRuleException("El tipo de ajuste es obligatorio");
+        }
+        if (dto.cantidad() == null || dto.cantidad() <= 0) {
+            throw new BusinessRuleException("La cantidad debe ser mayor a cero");
+        }
+        if (dto.motivo() == null || dto.motivo().isBlank()) {
+            throw new BusinessRuleException("El motivo del ajuste es obligatorio");
+        }
+        if (dto.motivo().length() > 150) {
+            throw new BusinessRuleException("El motivo no puede superar los 150 caracteres");
+        }
+        if (dto.observacion() != null && dto.observacion().length() > 500) {
+            throw new BusinessRuleException("La observación no puede superar los 500 caracteres");
+        }
+    }
+
+
     private void aplicarAjuste(
             ExistenciaProducto existencia,
             EnumTipoAjusteInventario tipo,
@@ -149,15 +212,30 @@ public class AjusteInventarioService {
 
         Long cantidadActual = existencia.getCantidad();
 
+        // El stock nunca debe ser nulo o negativo antes de ajustar.
+        if (cantidadActual == null || cantidadActual < 0) {
+            throw new BusinessRuleException(
+                    "La existencia presenta una cantidad inválida"
+            );
+        }
+
         if (tipo == EnumTipoAjusteInventario.ENTRADA) {
 
-            existencia.setCantidad(
-                    cantidadActual + cantidad
-            );
+            // Evita que la suma exceda Long.MAX_VALUE y genere stock negativo.
+            try {
+                existencia.setCantidad(
+                        Math.addExact(cantidadActual, cantidad)
+                );
+            } catch (ArithmeticException ex) {
+                throw new BusinessRuleException(
+                        "La cantidad resultante supera el máximo permitido"
+                );
+            }
 
             return;
         }
 
+        // Salida: comprueba el stock obtenido después de adquirir el bloqueo.
         if (cantidad > cantidadActual) {
 
             throw new BusinessRuleException(
@@ -206,6 +284,24 @@ public class AjusteInventarioService {
     }
 
 
+    /**
+     * Obtiene y bloquea la fila de la existencia para un ajuste manual.
+     * Debe invocarse dentro de registrarAjuste(), que es @Transactional.
+     */
+    private ExistenciaProducto obtenerExistenciaPorIdParaAjuste(Long id) {
+
+        return existenciaProductoRepository
+                .obtenerPorIdConBloqueo(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Existencia de producto",
+                                id
+                        )
+                );
+    }
+
+
+    // Consulta normal: mantiene las lecturas sin bloqueo pesimista.
     private ExistenciaProducto obtenerExistenciaPorId(Long id) {
 
         return existenciaProductoRepository
@@ -221,7 +317,13 @@ public class AjusteInventarioService {
 
     private Usuario obtenerUsuario(String nombreUsuario) {
 
-        return usuarioRepository
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            throw new BusinessRuleException(
+                    "No se identificó al usuario responsable del ajuste"
+            );
+        }
+
+        Usuario usuario = usuarioRepository
                 .findByNombreUsuario(nombreUsuario)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -229,6 +331,14 @@ public class AjusteInventarioService {
                                 nombreUsuario
                         )
                 );
+
+        if (!Boolean.TRUE.equals(usuario.getActivo())) {
+            throw new BusinessRuleException(
+                    "El usuario responsable del ajuste está inactivo"
+            );
+        }
+
+        return usuario;
     }
 
 

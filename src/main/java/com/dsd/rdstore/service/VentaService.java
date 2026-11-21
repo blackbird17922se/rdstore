@@ -3,12 +3,16 @@ package com.dsd.rdstore.service;
 import com.dsd.rdstore.repository.DetalleVentaRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.Set;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.dto.venta.DetalleVentaRequestDTO;
 import com.dsd.rdstore.dto.venta.VentaRequestDTO;
 import com.dsd.rdstore.dto.venta.VentaResponseDTO;
@@ -25,6 +29,7 @@ import com.dsd.rdstore.repository.ClienteRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
 import com.dsd.rdstore.repository.UsuarioRepository;
 import com.dsd.rdstore.repository.VentaRepository;
+import com.dsd.rdstore.specification.VentaSpecification;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +46,10 @@ public class VentaService {
 
     private final SalidaInventarioService salidaInventarioService;
 
+    // Ordenamiento controlado: nunca interpolar propiedades arbitrarias del cliente.
+    private static final Set<String> CAMPOS_ORDEN = Set.of(
+            "id", "fecha", "total", "subtotal", "ivaTotal", "estado");
+
 
     public List<VentaResponseDTO> listarVentas() {
         return ventaRepository
@@ -49,6 +58,45 @@ public class VentaService {
             .map(this::mapearVentaResponse)
             .toList();
     }
+
+    /**
+     * Consulta paginada del historial comercial, sin cargar todos los detalles.
+     * El detalle completo se consulta por ID al abrir la venta seleccionada.
+     */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public PageResponseDTO<VentaResponseDTO> listarVentasPaginadas(
+            String texto,
+            EnumEstadoVenta estado,
+            Long idCliente,
+            Long idVendedor,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            BigDecimal totalMin,
+            BigDecimal totalMax,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+            throw new IllegalArgumentException("La fecha inicial no puede superar la fecha final");
+        }
+        if (totalMin != null && totalMin.signum() < 0 || totalMax != null && totalMax.signum() < 0) {
+            throw new IllegalArgumentException("Los totales no pueden ser negativos");
+        }
+        if (totalMin != null && totalMax != null && totalMin.compareTo(totalMax) > 0) {
+            throw new IllegalArgumentException("El total mínimo no puede superar el máximo");
+        }
+
+        return SpecificationPageUtils.buscar(
+                ventaRepository,
+                VentaSpecification.filtrar(
+                        texto, estado, idCliente, idVendedor,
+                        fechaDesde, fechaHasta, totalMin, totalMax),
+                this::mapearVentaResponse,
+                page, size, ordenarPor, direccion, CAMPOS_ORDEN);
+    }
+
 
     public Venta actualizar(Long id, Venta datosVenta) {
         Venta existente = ventaRepository.findById(id)
@@ -122,10 +170,17 @@ public class VentaService {
 
             DetalleVenta detalle = crearDetalleVenta(reqDetalle, venta, producto, tarifaIva);
 
-            detalleVentaRepository.save(detalle);
-
             /* descontar existencia. FEFO / FIFO y movimiento */
-            salidaInventarioService.descontarPorVenta(producto, reqDetalle.cantidad(), venta.getId());
+            // El descuento físico se limita a las unidades realmente disponibles.
+            // La venta comercial puede incluir unidades sin cobertura de inventario.
+            SalidaInventarioService.ResultadoDescuentoInventario resultado =
+                    salidaInventarioService.descontarPorVenta(
+                            producto, reqDetalle.cantidad(), venta.getId());
+
+            // Persistir ambas cantidades por detalle para futuras alertas y auditoría.
+            detalle.setCantidadDescontada(resultado.cantidadDescontada());
+            detalle.setCantidadSinStock(resultado.cantidadSinStock());
+            detalleVentaRepository.save(detalle);
 
             /* Acumular valores ya calculados */
             subtotalVenta = subtotalVenta.add(detalle.getSubtotal());
@@ -219,17 +274,32 @@ public class VentaService {
             Long idVenta,
             String motivo) {
 
-        Venta venta = ventaRepository.findById(idVenta)
+        // Solo una solicitud puede anular esta venta a la vez.
+        // El bloqueo dura hasta confirmar o revertir la transacción.
+        Venta venta = ventaRepository.obtenerPorIdConBloqueo(idVenta)
                 .orElseThrow(() ->
                         new NegocioExcepcion(
                                 "Venta no encontrada"
                         )
                 );
 
+        if (motivo == null || motivo.isBlank()) {
+            throw new NegocioExcepcion("El motivo de anulación es obligatorio");
+        }
+        String motivoNormalizado = motivo.trim();
+        // La columna motivo_anulacion no define longitud; JPA/MySQL suele usar VARCHAR(255).
+        if (motivoNormalizado.length() > 255) {
+            throw new NegocioExcepcion("El motivo de anulación no puede superar 255 caracteres");
+        }
+
         if (venta.getEstado() == EnumEstadoVenta.ANULADA) {
             throw new NegocioExcepcion(
                     "La venta ya se encuentra anulada"
             );
+        }
+
+        if (venta.getEstado() != EnumEstadoVenta.CONFIRMADA) {
+            throw new NegocioExcepcion("Solo se pueden anular ventas confirmadas");
         }
 
         /*
@@ -246,7 +316,7 @@ public class VentaService {
                 LocalDateTime.now()
         );
 
-        venta.setMotivoAnulacion(motivo);
+        venta.setMotivoAnulacion(motivoNormalizado);
 
         ventaRepository.save(venta);
     }

@@ -9,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.dsd.rdstore.dto.marca.MarcaEstadoDTO;
 import com.dsd.rdstore.dto.marca.MarcaRequestDTO;
 import com.dsd.rdstore.dto.marca.MarcaResponseDTO;
-import com.dsd.rdstore.dto.marca.MarcaResponseDTO;
 import com.dsd.rdstore.dto.common.PageResponseDTO;
 
 import com.dsd.rdstore.service.MarcaService;

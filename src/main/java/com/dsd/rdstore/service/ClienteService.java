@@ -2,9 +2,13 @@ package com.dsd.rdstore.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.dto.cliente.ClienteEstadoDTO;
 import com.dsd.rdstore.dto.cliente.ClienteRequestDTO;
 import com.dsd.rdstore.dto.cliente.ClienteResponseDTO;
@@ -12,6 +16,7 @@ import com.dsd.rdstore.exception.DuplicateResourceException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.Cliente;
 import com.dsd.rdstore.repository.ClienteRepository;
+import com.dsd.rdstore.specification.ClienteSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +27,11 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final String RECURSO = "Cliente";
+
+    // Solo estas propiedades de Cliente se pueden usar para ordenar desde la API.
+    private static final Set<String> CAMPOS_ORDEN = Set.of(
+        "id", "nombresApellidos", "numeroDocumento", "fechaRegistro"
+    );
 
 
     public ClienteResponseDTO crearCliente(ClienteRequestDTO dto) {
@@ -53,6 +63,29 @@ public class ClienteService {
             .stream()
             .map(this::mapearResponse)
             .toList();
+    }
+
+
+    /**
+     * Consulta paginada para el mantenimiento de clientes.
+     * Se conservan los listados anteriores para no afectar otros procesos.
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<ClienteResponseDTO> listarClientesPaginados(
+            String nombre,
+            String documento,
+            Boolean activo,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        return SpecificationPageUtils.buscar(
+            clienteRepository,
+            ClienteSpecification.filtrar(nombre, documento, activo),
+            this::mapearResponse,
+            page, size, ordenarPor, direccion, CAMPOS_ORDEN
+        );
     }
 
 

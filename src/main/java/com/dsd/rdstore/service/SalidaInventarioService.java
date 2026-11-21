@@ -2,9 +2,13 @@ package com.dsd.rdstore.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import org.springframework.stereotype.Service;
 
+import com.dsd.rdstore.exception.BusinessRuleException;
+import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.ExistenciaProducto;
 import com.dsd.rdstore.model.MovimientoInventario;
 import com.dsd.rdstore.model.Producto;
@@ -25,8 +29,26 @@ public class SalidaInventarioService {
     private final ExistenciaProductoRepository existenciaProductoRepository;
     private final MovimientoInventarioRepository movimientoInventarioRepository;
 
+    /**
+     * Cantidades realmente afectadas en el inventario físico registrado.
+     * Las unidades sin stock no generan movimientos de salida ficticios.
+     */
+    public record ResultadoDescuentoInventario(long cantidadDescontada, long cantidadSinStock) {}
+
     @Transactional
-    public void descontarPorVenta(Producto producto, Long cantidadSolicitada, Long idVenta) {
+    public ResultadoDescuentoInventario descontarPorVenta(
+            Producto producto, Long cantidadSolicitada, Long idVenta) {
+
+        // Validación defensiva: el servicio también puede ser invocado fuera del Controller.
+        if (producto == null || producto.getId() == null) {
+            throw new BusinessRuleException("El producto de la venta es obligatorio");
+        }
+        if (cantidadSolicitada == null || cantidadSolicitada <= 0) {
+            throw new BusinessRuleException("La cantidad a descontar debe ser mayor a cero");
+        }
+        if (idVenta == null) {
+            throw new BusinessRuleException("La venta debe estar registrada antes de descontar inventario");
+        }
 
         List<ExistenciaProducto> existencias;
 
@@ -53,6 +75,11 @@ public class SalidaInventarioService {
 
             long cantidadADescontar = Math.min(disponible, pendiente);
 
+            // Un lote agotado no genera un movimiento de salida de cero unidades.
+            if (cantidadADescontar <= 0) {
+                continue;
+            }
+
             existencia.setCantidad(disponible - cantidadADescontar);
 
             existenciaProductoRepository.save(existencia);
@@ -65,15 +92,20 @@ public class SalidaInventarioService {
             pendiente -= cantidadADescontar;
         }
 
+        // El faltante se registra en el detalle de venta, no como stock negativo.
+        // Una venta comercial puede haber ocurrido aunque DStore no tenga
+        // existencias suficientes; esto NO supone automáticamente entrega pendiente.
         if (pendiente > 0) {
-
             log.warn(
-                    "Venta {} realizada con faltante de inventario. "
-                            + "Producto: {}, cantidad sin stock: {}",
+                    "Venta {} registrada con unidades sin cobertura de inventario. "
+                            + "Producto: {}, unidades sin stock: {}",
                     idVenta,
                     producto.getId(),
                     pendiente);
         }
+
+        long descontada = cantidadSolicitada - pendiente;
+        return new ResultadoDescuentoInventario(descontada, pendiente);
     }
 
 
@@ -94,6 +126,7 @@ public class SalidaInventarioService {
         movimientoInventarioRepository.save(movimiento);
     }
 
+    @Transactional
     public void revertirVenta(Long idVenta) {
 
         List<MovimientoInventario> movimientos =
@@ -103,22 +136,51 @@ public class SalidaInventarioService {
                             EnumTipoOrigenInventario.VENTA,
                             idVenta);
 
-        for (MovimientoInventario movimiento : movimientos) {
+        // Orden estable de bloqueos para reducir el riesgo de interbloqueos.
+        // Solo se restituyen los movimientos de salida realmente registrados.
+        List<MovimientoInventario> movimientosOrdenados = new ArrayList<>(movimientos);
+        movimientosOrdenados.sort(Comparator
+                .comparing((MovimientoInventario m) -> m.getExistencia().getId())
+                .thenComparing(MovimientoInventario::getId));
 
-            ExistenciaProducto existencia =
-                    movimiento.getExistencia();
+        for (MovimientoInventario movimiento : movimientosOrdenados) {
 
-            Long cantidadADevolver =
-                    Math.abs(movimiento.getCantidad());
+            // Bloquear la misma fila que utilizan Ajustes, FIFO y FEFO.
+            // Evita perder actualizaciones si una anulación coincide con otra operación.
+            Long idExistencia = movimiento.getExistencia().getId();
+            ExistenciaProducto existencia = existenciaProductoRepository
+                    .obtenerPorIdConBloqueo(idExistencia)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Existencia de producto", idExistencia));
 
-            existencia.setCantidad(
-                    existencia.getCantidad()
-                            + cantidadADevolver
-            );
+            // Una salida de venta válida debe tener cantidad estrictamente negativa.
+            if (movimiento.getCantidad() == null || movimiento.getCantidad() >= 0
+                    || movimiento.getCantidad() == Long.MIN_VALUE) {
+                throw new BusinessRuleException("Movimiento de venta inválido para anulación");
+            }
+            Long cantidadADevolver = -movimiento.getCantidad();
+
+            // Evita overflow en caso de datos extremos o inconsistentes.
+            existencia.setCantidad(Math.addExact(
+                    existencia.getCantidad(), cantidadADevolver));
 
             existenciaProductoRepository.save(
                     existencia
             );
+
+            // Movimiento compensatorio inmutable: conserva la salida VENTA original
+            // y documenta que las unidades efectivamente descontadas fueron devueltas.
+            // No se compensa cantidadSinStock, pues nunca se descontó físicamente.
+            MovimientoInventario compensacion = new MovimientoInventario();
+            compensacion.setExistencia(existencia);
+            compensacion.setTipo(EnumTipoMovimientoInventario.ANULACION_VENTA);
+            compensacion.setCantidad(cantidadADevolver);
+            compensacion.setFechaMovimiento(LocalDateTime.now());
+            compensacion.setTipoOrigen(EnumTipoOrigenInventario.VENTA);
+            compensacion.setIdOrigen(idVenta);
+            compensacion.setObservacion(
+                    "Anulación de venta #" + idVenta + " / revierte movimiento #" + movimiento.getId());
+            movimientoInventarioRepository.save(compensacion);
 
         }
     }

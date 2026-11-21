@@ -4,5 +4,7 @@ public enum EnumTipoMovimientoInventario {
     ENTRADA,
     VENTA,
     AJUSTE_ENTRADA,
-    AJUSTE_SALIDA
+    AJUSTE_SALIDA,
+    /** Devolución física de unidades descontadas por una venta posteriormente anulada. */
+    ANULACION_VENTA
 }

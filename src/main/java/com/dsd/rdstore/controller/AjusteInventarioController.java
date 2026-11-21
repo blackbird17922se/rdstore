@@ -1,8 +1,11 @@
 package com.dsd.rdstore.controller;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.model.enums.EnumTipoAjusteInventario;
 import com.dsd.rdstore.dto.ajusteInventario.AjusteInventarioRequestDTO;
 import com.dsd.rdstore.dto.ajusteInventario.AjusteInventarioResponseDTO;
 import com.dsd.rdstore.service.AjusteInventarioService;
@@ -55,6 +60,25 @@ public class AjusteInventarioController {
         return ResponseEntity.ok(
                 ajusteInventarioService.listarAjustes()
         );
+    }
+
+    /** Historial filtrado en el servidor antes de paginar. */
+    @GetMapping("/paginados")
+    public ResponseEntity<PageResponseDTO<AjusteInventarioResponseDTO>> listarPaginados(
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) EnumTipoAjusteInventario tipo,
+            @RequestParam(required = false) Long idProducto,
+            @RequestParam(required = false) Long idExistencia,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "fechaAjuste") String ordenarPor,
+            @RequestParam(defaultValue = "desc") String direccion) {
+
+        return ResponseEntity.ok(ajusteInventarioService.listarPaginados(
+                texto, tipo, idProducto, idExistencia,
+                fechaDesde, fechaHasta, page, size, ordenarPor, direccion));
     }
 
     @GetMapping("/{id}")
