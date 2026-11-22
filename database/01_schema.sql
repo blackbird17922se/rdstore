@@ -191,7 +191,7 @@ CREATE TABLE `detalle_venta` (
   `tipo_iva` varchar(20) NOT NULL,
   `porcentaje_iva` decimal(5,2) NOT NULL,
   `subtotal` decimal(38,2) DEFAULT NULL,
-  `valor_iva` decimal(15,2) NOT NULL,
+  `valor_iva` decimal(38,2) NOT NULL,
   `total` decimal(38,2) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_detalle_venta` (`id_venta`),
