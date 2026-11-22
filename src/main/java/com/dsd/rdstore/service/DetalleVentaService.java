@@ -3,6 +3,7 @@ package com.dsd.rdstore.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dsd.rdstore.dto.venta.DetalleVentaDTO;
 import com.dsd.rdstore.dto.venta.VentaDetalleDTO;
@@ -23,6 +24,7 @@ public class DetalleVentaService {
     private final VentaRepository ventaRepository;
 
 
+    @Transactional(readOnly = true)
     public VentaDetalleDTO obtenerDetalleVenta(Long idVenta) {
 
         Venta venta = ventaRepository.findById(idVenta)
@@ -46,7 +48,14 @@ public class DetalleVentaService {
                 d.getProducto().getNombre(),
                 d.getCantidad(),
                 d.getPrecioUnitario(),
-                d.getSubtotal()
+                d.getSubtotal(),
+                d.getTotal(),
+                d.getValorIva(),
+                d.getPorcentajeIva(),
+                d.getTipoIva(),
+                d.getProducto().getId(),
+                d.getCantidadDescontada(),
+                d.getCantidadSinStock()
             )).toList();
 
         String nombreCliente = null;

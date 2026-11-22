@@ -1,8 +1,13 @@
 package com.dsd.rdstore.controller;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.dto.entradaInventario.EntradaInventarioListadoDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +56,31 @@ public class EntradaInventarioController {
                 entradaInventarioService.listarEntradas()
         );
     }
+
+    /** Listado administrativo filtrable, paginado y de solo lectura. */
+    @GetMapping("/paginados")
+    public ResponseEntity<PageResponseDTO<EntradaInventarioListadoDTO>> listarPaginados(
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) String numeroDocumento,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fechaEntradaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fechaEntradaHasta,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fechaRegistroDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate fechaRegistroHasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "fechaRegistro") String ordenarPor,
+            @RequestParam(defaultValue = "desc") String direccion) {
+
+        return ResponseEntity.ok(entradaInventarioService.listarEntradasPaginadas(
+                texto, numeroDocumento, fechaEntradaDesde, fechaEntradaHasta,
+                fechaRegistroDesde, fechaRegistroHasta,
+                page, size, ordenarPor, direccion));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<EntradaInventarioResponseDTO> obtenerEntrada(

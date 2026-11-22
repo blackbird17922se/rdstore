@@ -1,10 +1,15 @@
 package com.dsd.rdstore.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
 import com.dsd.rdstore.dto.movimientoInventario.MovimientoInventarioResponseDTO;
 import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
@@ -15,6 +20,7 @@ import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 import com.dsd.rdstore.repository.ExistenciaProductoRepository;
 import com.dsd.rdstore.repository.MovimientoInventarioRepository;
 import com.dsd.rdstore.repository.ProductoRepository;
+import com.dsd.rdstore.specification.MovimientoInventarioSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +42,45 @@ public class MovimientoInventarioService {
     private final MovimientoInventarioRepository movimientoInventarioRepository;
     private final ExistenciaProductoRepository existenciaProductoRepository;
     private final ProductoRepository productoRepository;
+
+    // Solo se permite ordenar por propiedades conocidas; se valida en PaginationUtils.
+    private static final Set<String> CAMPOS_ORDEN = Set.of(
+            "id", "fechaMovimiento", "existencia.producto.nombre", "tipo",
+            "cantidad", "tipoOrigen", "idOrigen", "existencia.id");
+
+    /**
+     * Historial general: filtros dinámicos, ordenamiento y paginación en MySQL.
+     * No registra ni modifica movimientos ni existencias.
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<MovimientoInventarioResponseDTO> listarMovimientosPaginados(
+            String texto,
+            Long idProducto,
+            Long idExistencia,
+            EnumTipoMovimientoInventario tipo,
+            EnumTipoOrigenInventario tipoOrigen,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        if (fechaDesde == null || fechaHasta == null) {
+            throw new IllegalArgumentException("El período de consulta es obligatorio");
+        }
+        if (fechaDesde.isAfter(fechaHasta)) {
+            throw new IllegalArgumentException("La fecha inicial no puede superar la fecha final");
+        }
+
+        return SpecificationPageUtils.buscar(
+                movimientoInventarioRepository,
+                MovimientoInventarioSpecification.filtrar(
+                        texto, idProducto, idExistencia, tipo, tipoOrigen, fechaDesde, fechaHasta),
+                this::mapResponse,
+                page, size, ordenarPor, direccion, CAMPOS_ORDEN);
+    }
+
 
 
     public MovimientoInventario registrarMovimiento(

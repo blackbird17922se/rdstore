@@ -3,13 +3,14 @@ package com.dsd.rdstore.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.dsd.rdstore.model.MovimientoInventario;
 import com.dsd.rdstore.model.enums.EnumTipoMovimientoInventario;
 import com.dsd.rdstore.model.enums.EnumTipoOrigenInventario;
 
 public interface MovimientoInventarioRepository
-        extends JpaRepository<MovimientoInventario, Long> {
+        extends JpaRepository<MovimientoInventario, Long>, JpaSpecificationExecutor<MovimientoInventario> {
 
     List<MovimientoInventario>
             findByExistenciaIdOrderByFechaMovimientoDesc(Long idExistencia);

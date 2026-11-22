@@ -1,8 +1,10 @@
 package com.dsd.rdstore.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,10 @@ import com.dsd.rdstore.dto.entradaInventario.DetalleEntradaInventarioRequestDTO;
 import com.dsd.rdstore.dto.entradaInventario.DetalleEntradaInventarioResponseDTO;
 import com.dsd.rdstore.dto.entradaInventario.EntradaInventarioRequestDTO;
 import com.dsd.rdstore.dto.entradaInventario.EntradaInventarioResponseDTO;
+import com.dsd.rdstore.dto.entradaInventario.EntradaInventarioListadoDTO;
+import com.dsd.rdstore.dto.common.PageResponseDTO;
+import com.dsd.rdstore.common.util.SpecificationPageUtils;
+import com.dsd.rdstore.specification.EntradaInventarioSpecification;
 import com.dsd.rdstore.exception.BusinessRuleException;
 import com.dsd.rdstore.exception.ResourceNotFoundException;
 import com.dsd.rdstore.model.DetalleEntradaInventario;
@@ -41,6 +47,10 @@ import lombok.RequiredArgsConstructor;
 public class EntradaInventarioService {
 
     private static final String RECURSO = "Entrada de inventario";
+
+    // El ordenamiento se restringe a propiedades de la cabecera, nunca a expresiones SQL.
+    private static final Set<String> CAMPOS_ORDEN = Set.of(
+            "id", "fechaEntrada", "fechaRegistro", "numeroDocumento", "observacion");
 
     private final EntradaInventarioRepository entradaInventarioRepository;
     private final DetalleEntradaInventarioRepository detalleEntradaInventarioRepository;
@@ -123,6 +133,39 @@ public class EntradaInventarioService {
                 entradaGuardada,
                 detallesResponse
         );
+    }
+
+
+    /**
+     * Consulta paginada de cabeceras.
+     * No modifica stock ni carga los detalles de cada entrada (evita N+1 consultas).
+     * Los detalles completos se consultan al abrir GET /{id}.
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDTO<EntradaInventarioListadoDTO> listarEntradasPaginadas(
+            String texto,
+            String numeroDocumento,
+            LocalDate fechaEntradaDesde,
+            LocalDate fechaEntradaHasta,
+            LocalDate fechaRegistroDesde,
+            LocalDate fechaRegistroHasta,
+            int page,
+            int size,
+            String ordenarPor,
+            String direccion) {
+
+        return SpecificationPageUtils.buscar(
+                entradaInventarioRepository,
+                EntradaInventarioSpecification.filtrar(
+                        texto, numeroDocumento, fechaEntradaDesde, fechaEntradaHasta,
+                        fechaRegistroDesde, fechaRegistroHasta),
+                entrada -> new EntradaInventarioListadoDTO(
+                        entrada.getId(),
+                        entrada.getFechaEntrada(),
+                        entrada.getFechaRegistro(),
+                        entrada.getNumeroDocumento(),
+                        entrada.getObservacion()),
+                page, size, ordenarPor, direccion, CAMPOS_ORDEN);
     }
 
 
