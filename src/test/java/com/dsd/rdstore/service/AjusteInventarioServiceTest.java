@@ -53,6 +53,7 @@ class AjusteInventarioServiceTest {
 
         ExistenciaProducto existencia = crearExistencia(24L);
         Usuario usuario = crearUsuario();
+        usuario.setActivo(true);
 
         AjusteInventarioRequestDTO dto =
                 new AjusteInventarioRequestDTO(
@@ -63,7 +64,7 @@ class AjusteInventarioServiceTest {
                         "Daño físico"
                 );
 
-        when(existenciaProductoRepository.findById(6L))
+        when(existenciaProductoRepository.obtenerPorIdConBloqueo(6L))
                 .thenReturn(Optional.of(existencia));
 
         when(usuarioRepository.findByNombreUsuario("admin"))
@@ -117,7 +118,7 @@ class AjusteInventarioServiceTest {
                         null
                 );
 
-        when(existenciaProductoRepository.findById(6L))
+        when(existenciaProductoRepository.obtenerPorIdConBloqueo(6L))
                 .thenReturn(Optional.of(existencia));
 
         when(usuarioRepository.findByNombreUsuario("admin"))
@@ -163,7 +164,7 @@ class AjusteInventarioServiceTest {
                         null
                 );
 
-        when(existenciaProductoRepository.findById(6L))
+        when(existenciaProductoRepository.obtenerPorIdConBloqueo(6L))
                 .thenReturn(Optional.of(existencia));
 
         when(usuarioRepository.findByNombreUsuario("admin"))
@@ -221,6 +222,7 @@ class AjusteInventarioServiceTest {
         Usuario usuario = new Usuario();
         usuario.setId(1L);
         usuario.setNombreUsuario("admin");
+        usuario.setActivo(true);
 
         return usuario;
     }
