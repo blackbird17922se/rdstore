@@ -34,7 +34,7 @@ public class JwtService {
 
         Date ahora = new Date();
 
-        // ahora + 1 hora (jwt.expiration=3600000) = fechaExpiracion
+        // Duración configurable del access token (p. ej., 30 minutos).
         Date fechaExpiracion = new Date(
             ahora.getTime() + expirationTime
         );

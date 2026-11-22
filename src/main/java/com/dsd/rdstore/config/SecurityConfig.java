@@ -171,6 +171,9 @@ public class SecurityConfig {
             )
         );
 
+        // Necesario para enviar la cookie HttpOnly de renovación desde Angular.
+        configuration.setAllowCredentials(true);
+
         configuration.setAllowedMethods(
             List.of(
                 "GET",
